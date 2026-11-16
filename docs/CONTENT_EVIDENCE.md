@@ -4,7 +4,7 @@ Internal implementation record. Updated 2026-11-16. This document is not custome
 
 ## Evidence status
 
-The working sources are the owner's instructions, `BestSauna_Codex_Master_Prompt.txt`, the launch blueprint and the supplied approved brand kit. Owner-provided information is identified below; it has not been converted into independent verification. No supplier outreach, contractor appointment, purchase, telephone call or mailbox delivery test was performed as part of this record.
+The working sources are the owner's instructions, the approved “Launch Sauna Brand” chat direction, repository content and supplied approved brand kit. The chat references `BestSauna_Codex_Master_Prompt.txt`, but the file is absent from the current branch and repository history; the owner explicitly approved continuing from the chat and repository. Owner-provided information is identified below; it has not been converted into independent verification. No supplier outreach, contractor appointment, purchase or telephone call was performed. The owner confirmed receipt of a controlled notification test on 2026-11-16; see `ENQUIRY_OPERATIONS.md` for its delivery limitations.
 
 | Item | Evidence currently available | Permitted use / current gate |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ The working sources are the owner's instructions, `BestSauna_Codex_Master_Prompt
 | French descriptor | Supplied FR artwork contains ENTRETIEN. No maintenance service has been established. | Do not use ENTRETIEN in the active site. Use the shared SERVICE descriptor or crop the approved descriptor out of the rendered wordmark. |
 | Concept imagery | Seven generated editorial images; source filenames and technical exports are recorded in `ASSET_SOURCES.md`. | Category/lifestyle context only. They are not exact supplier models, completed projects, site-engineering examples, inventory evidence or certification evidence. |
 | Telephone | Owner-provided planned number: `(833) 696-9996`; link `tel:+18336969996`. | May be displayed from supplied information in the review build. Routing and answer ownership remain unverified before public launch. |
-| Email | Owner-provided planned address: `info@bestsauna.ca`. | May be displayed from supplied information in the review build. Mailbox ownership, inbound routing and monitored response process remain unverified. |
+| Email | Owner verified `info@bestsauna.ca` in Formspree and confirmed receipt of test reference `BS-20261116-FB396C3D4969`. | Quote notification recipient is configured. The test required manual spam recovery; ordinary unfiltered delivery and the monitored response process still need operational confirmation. |
 | Operating company | Brief identifies intended operator Grafov Group Inc. | Confirm customer-facing seller identity and records before legal, order or checkout use; do not infer addresses or registration details. |
 | Supplier approvals | No approved agreement, dealer territory, supply allocation, written terms or fulfilment arrangement supplied. | Do not display supplier-partner or authorized-dealer claims. Public enquiry routes researched during planning are not approvals. |
 | Actual product catalogue | No approved model/configuration records, prices, stock, shipping dates, warranties or product photo rights supplied. The ten planning archetypes are sourcing briefs. | Explain categories and accept project enquiries. Keep real model routes, purchase cards, availability badges and Product/Offer markup unpublished until verified. |

@@ -1,17 +1,18 @@
 import { pages, pagePath, type Lang } from "@/content/site";
 import { contacts } from "@/lib/site-settings";
 import { SiteNav } from "./site-nav";
+import { comparisonQuery, comparisonQuoteQuery, readComparison } from "@/lib/sauna-comparison";
 
 export function BrandWordmark() { return <span className="brand-wordmark"><img src="/brand/bestsauna-wordmark-en-light.png" width="2172" height="724" alt="BestSauna.ca" /></span>; }
 
 export function SiteHeader({ lang, pageKey, search = {} }: { lang: Lang; pageKey: string; search?: Record<string,string|string[]|undefined> }) {
   const fr = lang === "fr";
   const other:Lang=fr?"en":"fr";
-  const pairedQuery=new URLSearchParams();
+  const pairedQuery=new URLSearchParams(pageKey==="compare"?comparisonQuery(readComparison(search)):undefined);
   if(pageKey==="quote")for(const key of ["interest","service","use","placement","heat"]){const value=search[key];if(typeof value==="string"&&/^[a-z-]{1,30}$/.test(value))pairedQuery.set(key,value);}
   if(pageKey==="quote"&&typeof search.source==="string"){const source=pages.find(p=>p.paths[lang]===search.source);if(source)pairedQuery.set("source",source.paths[other]);}
   const counterpart=pagePath(pageKey,other)+(pairedQuery.size?`?${pairedQuery.toString()}`:"");
-  const quote=pagePath("quote",lang)+(pageKey!=="quote"?`?source=${encodeURIComponent(pagePath(pageKey,lang))}`:"");
+  const quote=pagePath("quote",lang)+(pageKey==="compare"?`?${comparisonQuoteQuery(readComparison(search),"unsure",pagePath(pageKey,lang))}`:pageKey!=="quote"?`?source=${encodeURIComponent(pagePath(pageKey,lang))}`:"");
   return <><a className="skip-link" href="#main-content">{fr ? "Aller au contenu" : "Skip to content"}</a><SiteNav lang={lang} home={pagePath("home",lang)} quote={quote} counterpart={counterpart} nav={[
     {label:fr?"LIVRAISON ET INSTALLATION":"DELIVERY & INSTALLATION",href:pagePath("installation",lang)},
     {label:fr?"COMMERCIAL":"COMMERCIAL",href:pagePath("commercial",lang)},
@@ -19,14 +20,14 @@ export function SiteHeader({ lang, pageKey, search = {} }: { lang: Lang; pageKey
   ]} saunaLinks={["saunas","outdoor","indoor","infrared","cottage","heaters","compare"].map(key => ({label:pages.find(p=>p.key===key)?.copy[lang].eyebrow || key,href:pagePath(key,lang)}))} /></>;
 }
 
-export function QuoteBand({ lang, pageKey }: { lang: Lang; pageKey:string }) {
+export function QuoteBand({ lang, pageKey, search = {} }: { lang: Lang; pageKey:string; search?:Record<string,string|string[]|undefined> }) {
   const fr=lang==="fr";
-  return <section className="quote-band"><div className="container quote-band-inner"><div><p className="eyebrow">{fr?"COMMENÇONS PAR VOTRE ESPACE":"LET’S START WITH YOUR SPACE"}</p><h2>{fr?"Votre sauna commence ici.":"Your sauna starts here."}</h2><p>{fr?"Parlez-nous de votre projet. Nous préciserons la configuration, la livraison et les services à inclure.":"Tell us what you have in mind. We’ll clarify the configuration, delivery, and services your quotation needs."}</p></div><a className="button button-light" href={`${pagePath("quote",lang)}?source=${encodeURIComponent(pagePath(pageKey,lang))}`}>{fr?"DEMANDER UNE SOUMISSION":"REQUEST A QUOTE"}</a></div></section>;
+  return <section className="quote-band"><div className="container quote-band-inner"><div><p className="eyebrow">{fr?"COMMENÇONS PAR VOTRE ESPACE":"LET’S START WITH YOUR SPACE"}</p><h2>{fr?"Votre sauna commence ici.":"Your sauna starts here."}</h2><p>{fr?"Parlez-nous de votre projet. Nous préciserons la configuration, la livraison et les services à inclure.":"Tell us what you have in mind. We’ll clarify the configuration, delivery, and services your quotation needs."}</p></div><a className="button button-light" href={`${pagePath("quote",lang)}?${pageKey==="compare"?comparisonQuoteQuery(readComparison(search),"unsure",pagePath(pageKey,lang)):`source=${encodeURIComponent(pagePath(pageKey,lang))}`}`}>{fr?"DEMANDER UNE SOUMISSION":"REQUEST A QUOTE"}</a></div></section>;
 }
 
 export function SiteFooter({ lang, pageKey, search = {} }: { lang: Lang; pageKey: string; search?:Record<string,string|string[]|undefined> }) {
   const fr=lang==="fr";
-  const pairedQuery=new URLSearchParams();
+  const pairedQuery=new URLSearchParams(pageKey==="compare"?comparisonQuery(readComparison(search)):undefined);
   if(pageKey==="quote")for(const key of ["interest","service","use","placement","heat"]){const value=search[key];if(typeof value==="string"&&/^[a-z-]{1,30}$/.test(value))pairedQuery.set(key,value);}
   if(pageKey==="quote"&&typeof search.source==="string"){const source=pages.find(p=>p.paths[lang]===search.source);if(source)pairedQuery.set("source",source.paths[fr?"en":"fr"]);}
   const counterpart=pagePath(pageKey,fr?"en":"fr")+(pairedQuery.size?`?${pairedQuery.toString()}`:"");
