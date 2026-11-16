@@ -216,6 +216,9 @@ test("Formspree receives one committed, readable quotation with reply-to and ref
   assert.equal(calls[0].url, "https://formspree.io/f/mljbjqwy");
   assert.equal(calls[0].init.headers.Accept, "application/json");
   assert.equal(calls[0].init.redirect, "manual");
+  assert.equal(calls[0].init.headers.Origin, ORIGIN);
+  assert.equal(calls[0].init.headers.Referer, `${ORIGIN}${data.sourcePath}`);
+  assert.deepEqual(Object.keys(calls[0].init.headers).sort(), ["Accept", "Content-Type", "Origin", "Referer"]);
   const outgoing = JSON.parse(calls[0].init.body);
   assert.equal(outgoing.email, data.email);
   assert.equal(outgoing.reference, result.reference);

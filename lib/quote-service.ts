@@ -204,7 +204,7 @@ function notificationPayload(row: NotificationRow) {
 }
 
 /** Claim once before contacting Formspree. Uncertain outcomes must not trigger duplicate emails. */
-async function notifyQuote(DB: QuoteDatabase, reference: string, now: () => number, transport: NotificationTransport, enabled: boolean): Promise<NotificationStatus> {
+async function notifyQuote(DB: QuoteDatabase, reference: string, now: () => number, transport: NotificationTransport, enabled: boolean, sourceOrigin: string): Promise<NotificationStatus> {
   if (!enabled) return "not_requested";
   try {
     const row = await DB.prepare(`UPDATE quote_enquiries
@@ -224,7 +224,10 @@ async function notifyQuote(DB: QuoteDatabase, reference: string, now: () => numb
       const response = await transport(FORMSPREE_ENDPOINT, {
         // Workers supports manual/follow, not the browser's "error" redirect mode.
         // Never forward customer details to a redirect destination.
-        method: "POST", redirect: "manual", headers: { "Content-Type": "application/json", Accept: "application/json" },
+        method: "POST", redirect: "manual", headers: {
+          "Content-Type": "application/json", Accept: "application/json",
+          Origin: sourceOrigin, Referer: new URL(row.source_path, sourceOrigin).href,
+        },
         body: JSON.stringify(notificationPayload(row)), signal: controller.signal,
       });
       if (response.ok) {
@@ -248,9 +251,9 @@ async function notifyQuote(DB: QuoteDatabase, reference: string, now: () => numb
   } catch { return "unknown"; }
 }
 
-async function savedResponse(DB: QuoteDatabase, row: SavedKey, payloadHash: string, status: number, now: () => number, transport: NotificationTransport, enabled: boolean) {
+async function savedResponse(DB: QuoteDatabase, row: SavedKey, payloadHash: string, status: number, now: () => number, transport: NotificationTransport, enabled: boolean, sourceOrigin: string) {
   if (row.payload_hash !== payloadHash) return error("conflict", 409);
-  const notification = await notifyQuote(DB, row.reference, now, transport, enabled);
+  const notification = await notifyQuote(DB, row.reference, now, transport, enabled, sourceOrigin);
   return json({ ok: true, reference: row.reference, notification }, status);
 }
 
@@ -266,6 +269,7 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
   const validated = validate(parsed.value);
   if (Object.keys(validated.fields).length || !validated.data) return json({ ok: false, error: "validation", fields: validated.fields }, 422);
   const data = validated.data;
+  const sourceOrigin = new URL(request.url).origin;
   const { DB, RATE_LIMIT_SECRET } = environment;
   const ip = clientIp(request);
   if (!DB || !RATE_LIMIT_SECRET || RATE_LIMIT_SECRET.length < 32 || !ip) return error("unavailable", 503);
@@ -273,7 +277,7 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
   try {
     const payloadHash = await hashPayload(data);
     const previous = await DB.prepare("SELECT reference, payload_hash FROM quote_enquiries WHERE idempotency_key = ?").bind(idempotencyKey).first<SavedKey>();
-    if (previous) return savedResponse(DB, previous, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true");
+    if (previous) return savedResponse(DB, previous, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin);
 
     const timestamp = now();
     const hour = Math.floor(timestamp / 3_600_000);
@@ -285,7 +289,7 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
       WHERE count < ? RETURNING count`).bind(bucketKey, expiresAt, QUOTE_RATE_LIMIT).first<{ count: number }>();
     if (!allowance) {
       const savedDuringRetry = await DB.prepare("SELECT reference, payload_hash FROM quote_enquiries WHERE idempotency_key = ?").bind(idempotencyKey).first<SavedKey>();
-      if (savedDuringRetry) return savedResponse(DB, savedDuringRetry, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true");
+      if (savedDuringRetry) return savedResponse(DB, savedDuringRetry, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin);
       return error("rate_limit", 429, { "Retry-After": String(Math.max(1, expiresAt - Math.floor(timestamp / 1000))) });
     }
 
@@ -306,12 +310,12 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
 
     if (!saved) {
       const competing = await DB.prepare("SELECT reference, payload_hash FROM quote_enquiries WHERE idempotency_key = ?").bind(idempotencyKey).first<SavedKey>();
-      return competing ? savedResponse(DB, competing, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true") : error("unavailable", 503);
+      return competing ? savedResponse(DB, competing, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin) : error("unavailable", 503);
     }
 
     // Best-effort expiry cleanup must never change a committed enquiry into a failed submission.
     try { await DB.prepare("DELETE FROM quote_rate_limits WHERE expires_at <= ?").bind(Math.floor(timestamp / 1000)).run(); } catch { /* Next accepted submission retries cleanup. */ }
-    return savedResponse(DB, saved, payloadHash, 201, now, transport, environment.QUOTE_EMAIL_ENABLED === "true");
+    return savedResponse(DB, saved, payloadHash, 201, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin);
   } catch {
     // Do not expose provider traces or log names, emails, IPs or submission bodies.
     return error("unavailable", 503);

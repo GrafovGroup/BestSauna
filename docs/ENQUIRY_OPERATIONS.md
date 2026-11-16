@@ -89,6 +89,8 @@ ORDER BY created_at;
 
 Check Formspree’s submission archive and workflow history for the reference before manually forwarding a notification. Do not reset uncertain rows and resend blindly: Formspree could already have accepted the original request. Review the saved enquiry directly and contact the customer through the normal business process. Fixed error codes contain no provider trace or personal data.
 
+Formspree may return `ok: true` for a submission it later filters as spam. Check its Spam folder as well as the Inbox and D1 records; a false positive can be reviewed and marked “Not Spam” individually. The dated validation record currently documents filtered QA submissions, so automatic inbox delivery remains a launch check.
+
 Changing the recipient, CAPTCHA requirement, spam rules, quota or enabled state in Formspree can affect notifications without a code change. This integration was prepared for the observed enabled form with CAPTCHA disabled and Formshield enabled; it does not alter those controls. Keep the email workflow enabled, use a verified linked address, and monitor the account’s submission allowance.
 
 Primary integration references: [Formspree JSON submission](https://formspree.io/blog/type-safe-form-pipeline/) and [special fields](https://help.formspree.io/articles/building-your-form/special-fields).
