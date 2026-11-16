@@ -4,13 +4,25 @@ This checklist separates a working review build from an operational public sales
 
 ## Review configuration
 
-- Source repository: `GrafovGroup/BestSauna`, branch `main`.
+- Source repository: `GrafovGroup/BestSauna`; current review branch `codex/continue-build`, draft PR #1.
 - Sites project: `appgprj_6afb50c9831c8191825be1b8da69c2de`.
 - Configured review destination: `https://bestsauna.dimagrafov.chatgpt.site`.
 - Review access: private through the Sites access setting.
 - Indexing: disabled by default; `PUBLIC_INDEXABLE` must explicitly equal `true` to enable it.
 
 Verify the actual deployed version and access controls. Private access and search-indexing controls are separate. Never use `robots.txt` or `noindex` as a substitute for access control.
+
+## Current build progress
+
+| Website area | Implementation status |
+| --- | --- |
+| Main English/French journeys | 20 paired pages, navigation, brand assets, category/service copy and quotation entry points implemented. |
+| Quotation intake | Validation, review-before-send, temporary drafts, D1 persistence and tracked Formspree notifications implemented. Inbox operations remain a launch dependency below. |
+| Sauna comparison | Two- or three-approach comparison, project/service context, mobile cards and bilingual quote handoff implemented. |
+| Buying guides and search foundations | Bilingual summaries, section navigation, article/page/collection structured data, matching breadcrumbs and reciprocal language sitemap entries implemented. Indexing remains disabled for private review. |
+| Real product catalogue | Not implemented. A draft/approved publication model can be prepared next; publishing real listings requires the supplier/model evidence below. |
+| Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |
+| Public launch | Pending the owner/provider inputs and deployment checks below. |
 
 ## Owner/provider inputs still required
 
@@ -21,7 +33,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | Delivery | Priced destination-specific freight, unloading/placement responsibilities, access restrictions, damage handling and lead-time basis. |
 | Installation coverage | A contractor-confirmed service map, actual scopes, qualifications, pricing, specialist trades and support responsibilities. Accepting a national enquiry does not establish national installation coverage. |
 | Commercial applications | Model-specific suitability and warranty approval for the proposed commercial or rental use. |
-| Telephone and mailbox | Verify `(833) 696-9996` routing and `info@bestsauna.ca` ownership/access. Source-code contact links do not prove either. |
+| Telephone and mailbox | Verify `(833) 696-9996` routing. The owner verified `info@bestsauna.ca` and confirmed one recovered test notification; confirm monitored access and ordinary unfiltered delivery. |
 | Monitored quotations | Assign an intake operator and review schedule; verify authorized retrieval of a controlled saved enquiry. Formspree notifications are enabled for the verified info@bestsauna.ca address, and the owner confirmed receipt of a controlled notification after individual spam recovery. Verify automatic unfiltered delivery before public launch. Check Formspree Spam, quota and failed/uncertain notification records. |
 | Seller and quotation terms | Confirm the legal seller, customer-facing company details, payment/change/cancellation terms, delivery boundaries, warranty allocation and other terms needed for actual orders. Grafov Group Inc. is intended, not verified here against legal records. |
 | Privacy and retention | Adopt a retention period and access/deletion procedure. Match the privacy notice to actual processors, storage and notifications. Implement deletion before promising automatic retention limits; do not claim Canadian-only data residency. |

@@ -2,6 +2,8 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { pages, pagePath } from "../content/site.ts";
+import { guideSummaries } from "../content/guide-summaries.ts";
+import { pageStructuredData } from "../lib/page-seo.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const publicRoot = resolve(root, "public");
@@ -82,6 +84,10 @@ for (const page of pages) {
     routes.set(path, label);
     check(pagePath(page.key, lang) === path, "Route helper mismatch: " + label);
     const copy = page.copy[lang];
+    if(page.kind === "guide") {
+      const summary = guideSummaries[page.key]?.[lang];
+      check(Boolean(summary?.question.trim() && summary?.answer.trim() && summary?.points.length === 3 && summary.points.every(p=>p.trim())), label + " needs a complete translated guide summary.");
+    }
     if (!copy) continue;
     for (const field of ["title", "description", "eyebrow", "heading", "intro"]) {
       check(typeof copy[field] === "string" && copy[field].trim().length > 0, label + " missing " + field);
@@ -166,7 +172,7 @@ if (icoPath) {
 // These commercial schema types need verified offer, review or location evidence
 // before their publication guard is deliberately updated.
 const gatedTypes = new Set(["Product", "ProductGroup", "Offer", "AggregateOffer", "Review", "AggregateRating", "LocalBusiness", "Store"]);
-const files = (await Promise.all(["app", "components"].map((dir) => sourceFiles(resolve(root, dir))))).flat();
+const files = (await Promise.all(["app", "components", "lib"].map((dir) => sourceFiles(resolve(root, dir))))).flat();
 const typePattern = /["']@type["']\s*:\s*(?:["']([^"']+)["']|\[([^\]]*)\])/g;
 for (const file of files) {
   const code = await readFile(file, "utf8");
@@ -183,6 +189,18 @@ for (const file of files) {
   const staticAssets = [...code.matchAll(/["'](\/(?:brand|icons|images)\/[^"'\s]+|\/favicon\.ico|\/site\.webmanifest)["']/g)].map((match) => match[1]);
   for (const url of new Set(staticAssets)) if (!checkedAssets.has(url)) await asset(url);
 }
+// Inspect generated output too: dynamic type selection is not visible to a source regex.
+function checkSchema(value) {
+  if (!value || typeof value !== "object") return;
+  for (const [key, item] of Object.entries(value)) {
+    if (key === "@type") for (const type of Array.isArray(item) ? item : [item]) {
+      structuredTypes.add(type);
+      check(!gatedTypes.has(type), "Evidence-gated " + type + " found in generated structured data.");
+    }
+    if (item && typeof item === "object") checkSchema(item);
+  }
+}
+for (const page of pages) for (const lang of languages) checkSchema(pageStructuredData(page,lang,"https://bestsauna.dimagrafov.chatgpt.site",pages,guideSummaries[page.key]?.[lang]));
 check(structuredTypes.has("Organization") && structuredTypes.has("WebSite"), "Base Organization/WebSite structured data is missing from application source.");
 
 if (errors.length) {

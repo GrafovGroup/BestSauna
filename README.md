@@ -9,7 +9,7 @@ The website contains **40 English/French content routes**, including three buyin
 | Item | Destination |
 | --- | --- |
 | Authoritative source repository | [GrafovGroup/BestSauna](https://github.com/GrafovGroup/BestSauna) |
-| Source branch | `main` |
+| Current review branch | `codex/continue-build` — [draft PR #1](https://github.com/GrafovGroup/BestSauna/pull/1) |
 | Sites project | `appgprj_6afb50c9831c8191825be1b8da69c2de` |
 | Configured private review destination | [bestsauna.dimagrafov.chatgpt.site](https://bestsauna.dimagrafov.chatgpt.site) |
 | Intended public domain | `BestSauna.ca` — domain/DNS and public access require a separate verified launch step |
@@ -146,6 +146,8 @@ Read enquiries and notification outcomes through the site's **authenticated Site
 | --- | --- |
 | Bilingual copy, equivalent routes and related links | `content/site.ts` |
 | Page rendering, navigation and forms | `app/` and the relevant components |
+| Guide summaries and section navigation | `content/guide-summaries.ts` and `components/guide-article.tsx` |
+| Metadata, breadcrumbs, structured data and sitemap/robots generation | `lib/page-seo.ts` |
 | Site origin, indexing and planned contacts | `lib/site-settings.ts` plus environment settings |
 | Approved brand artwork | `public/brand/` |
 | Editorial/category imagery | `public/images/` |
