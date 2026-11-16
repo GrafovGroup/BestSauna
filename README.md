@@ -75,10 +75,10 @@ Use the Sites skill's managed preview workflow and the URL returned by that work
 
 ```sh
 npm run build
-npm start
+npm start -- --env-file /absolute/path/to/your/checkout/.dev.vars
 ```
 
-`npm start` runs the built Worker through local Wrangler. It does not deploy the site. Apply local D1 migrations before exercising the form; use the URL printed by the server.
+Replace the environment-file path with the absolute path to your ignored local file; Wrangler resolves relative environment paths from `dist/server/`. `npm start` runs the built Worker through local Wrangler. It does not deploy the site. Apply local D1 migrations before exercising the form; use the URL printed by the server.
 
 ## Database migrations
 
@@ -117,6 +117,14 @@ node --experimental-strip-types --test tests/quote-service.test.mjs
 The backend suite has **nine tests** using the actual generated migrations with Node SQLite. The tests cover committed storage, field and transport validation, streaming size limits, duplicate retries/conflicts, concurrent duplicates, atomic rate limits and resets, missing configuration, write failures and SQL parameter binding. All nine passed during backend implementation. This does not establish production deployment, email delivery, owner monitoring or completed browser/accessibility checks.
 
 Before release, also review the actual English/French customer journeys at narrow and desktop widths, keyboard navigation, language switching, real endpoint behaviour, page metadata and images. Record only checks actually performed.
+
+## Enquiry drafts and review
+
+The bilingual form now has a details step and an explicit review-before-send step. A short-lived `sessionStorage` draft preserves entries across reloads and EN/FR navigation in the same tab. A new finder/service context starts a separate brief. Drafts expire 30 minutes after the last edit or send attempt; they are removed while the form remains open or on its next access, after a confirmed save, or with **Clear draft**. Consent and the honeypot are not restored. Storage failures leave the in-memory form usable and display a notice.
+
+Retry identity is stored as a UUID and a SHA-256 payload fingerprint alongside the draft. An unchanged retry after reload uses the same key. No enquiry is sent until the visitor uses the final send button. Phone replies require a telephone number; validation includes a focused, linked error summary. The privacy notice records this browser storage behaviour with version `2026-11-16.2`.
+
+`npm run verify` now includes five draft lifecycle tests as well as the nine intake tests. See the dated continuation record in [Validation](docs/VALIDATION.md).
 
 ## How quotation intake works
 

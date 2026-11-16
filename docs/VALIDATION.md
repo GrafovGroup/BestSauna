@@ -31,3 +31,17 @@ Verified on 2026-11-16. This is a quotation-led review release, not a confirmati
 No emails were sent. Enquiries are stored in D1; no inbox notifications are configured. Mailbox/telephone routing, supplier acceptance, real catalogue data, service coverage, production DNS, customer policies and intake monitoring remain owner/provider prerequisites. No real customer data was used for QA.
 
 HTTP response status codes were not independently measured from the shell because its loopback network differs from the Cloud browser. The audit distinguishes visibly rendered error pages from verified HTTP 404 statuses. No Lighthouse score, formal accessibility certification, Safari/mobile-device compatibility, live email delivery or third-party product approval is claimed.
+
+## Enquiry-flow continuation — 2026-11-16
+
+Source was recovered from GitHub commit `afc629e` and the ChatGPT conversation “Launch Sauna Brand”. The original master-prompt file is referenced by the repository but is absent from its two-commit history; the owner authorized continuing from the chat and repository. No replacement prompt has been presented as the original.
+
+- Added a bilingual review-before-send screen, temporary tab drafts, an explicit clear control, conditional telephone requirements and a linked validation summary. The privacy notice now describes the implemented draft behaviour.
+- `npm run verify`: passed TypeScript, all 14 tests (nine intake and five draft lifecycle cases), and the 40-route static content/asset checks.
+- Production build: passed through the Sites build helper with Node 24.22.1.
+- Browser checked English and French form entry, required-field errors, phone-reply requirements, draft preservation across the language switch and reload, fresh privacy acknowledgement, review/edit navigation, and clear-draft persistence after reload.
+- Checked the French review at a 390 × 844 viewport and the English commercial review at 1365 × 1000. Neither document overflowed horizontally. Review focus moved to the summary heading. These are viewport checks, not physical-device certification.
+- An unavailable local endpoint returned 503; the form retained its data and displayed a French error without a success claim. After configuring the local D1 environment, retrying saved `BS-20261116-A36161266F03`. A separate read-only SQLite query confirmed exactly one local enquiry, language `fr`, privacy version `2026-11-16.2`, status `new`. Reloading after success showed empty contact fields and unchecked consent.
+- Screenshots: `screenshots/quote-review-desktop.jpg` and `screenshots/quote-confirmation-mobile.jpg`. Only fabricated QA contact data was used.
+
+The development browser initially reported a hydration mismatch caused by injected LastPass/Grammarly markup. The overlay was dismissed, and the functional checks continued against the production build; extensions were not disabled and no application hydration warning was suppressed. Live email delivery, public DNS, supplier inputs and intake staffing remain outside this continuation. No production enquiry was submitted.

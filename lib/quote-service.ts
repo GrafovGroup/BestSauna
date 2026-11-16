@@ -1,7 +1,7 @@
 /** Private quotation intake. Success means committed storage, never email delivery. */
 export const MAX_QUOTE_BODY_BYTES = 16 * 1024;
 export const QUOTE_RATE_LIMIT = 5;
-export const PRIVACY_NOTICE_VERSION = "2026-11-16";
+export const PRIVACY_NOTICE_VERSION = "2026-11-16.2";
 
 const VALUES = {
   intendedUse: ["home", "cottage", "commercial"],
