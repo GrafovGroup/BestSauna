@@ -89,7 +89,7 @@ ORDER BY created_at;
 
 Check Formspree’s submission archive and workflow history for the reference before manually forwarding a notification. Do not reset uncertain rows and resend blindly: Formspree could already have accepted the original request. Review the saved enquiry directly and contact the customer through the normal business process. Fixed error codes contain no provider trace or personal data.
 
-Formspree may return `ok: true` for a submission it later filters as spam. Check its Spam folder as well as the Inbox and D1 records; a false positive can be reviewed and marked “Not Spam” individually. The dated validation record currently documents filtered QA submissions, so automatic inbox delivery remains a launch check.
+Formspree may return `ok: true` for a submission it later filters as spam. Check its Spam folder as well as the Inbox and D1 records; a false positive can be reviewed and marked “Not Spam” individually. The dated validation record documents filtered QA submissions and a recipient hard bounce. Resolve mailbox delivery and Formspree’s address suppression before considering automatic inbox delivery verified. The official recovery page is https://formspree.io/unblock/info@bestsauna.ca; the owner must complete its CAPTCHA. If the mailbox still bounces, investigate the recipient mail service before retrying.
 
 Changing the recipient, CAPTCHA requirement, spam rules, quota or enabled state in Formspree can affect notifications without a code change. This integration was prepared for the observed enabled form with CAPTCHA disabled and Formshield enabled; it does not alter those controls. Keep the email workflow enabled, use a verified linked address, and monitor the account’s submission allowance.
 
