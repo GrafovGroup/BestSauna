@@ -26,6 +26,7 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
   const [reviewing, setReviewing] = useState(false);
   const [message, setMessage] = useState("");
   const [reference, setReference] = useState("");
+  const [notificationNeedsFollowUp, setNotificationNeedsFollowUp] = useState(false);
   const [draftState, setDraftState] = useState<"ready" | "saved" | "unavailable" | "expired">("ready");
   const lock = useRef(false);
   const attempt = useRef<QuoteAttempt>({ fingerprint: "", key: "" });
@@ -170,11 +171,12 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
       if (attempt.current.fingerprint !== fingerprint) attempt.current = { fingerprint, key: crypto.randomUUID() };
       persist(fields);
       const response = await fetch("/api/quotes", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": attempt.current.key }, body: payload, signal: controller.signal });
-      const data = await response.json() as { ok?: boolean; reference?: string; fields?: Record<string, string> };
+      const data = await response.json() as { ok?: boolean; reference?: string; notification?: string; fields?: Record<string, string> };
       if (response.ok && data.ok && typeof data.reference === "string") {
         if (storage.current) clearQuoteDraft(storage.current);
         if (expiryTimer.current) clearTimeout(expiryTimer.current);
         setFields(initialFields); setAccepted(false); attempt.current = { fingerprint: "", key: "" };
+        setNotificationNeedsFollowUp(["failed", "unknown", "sending", "pending"].includes(data.notification || ""));
         setReference(data.reference); setStatus("success"); return;
       }
       if (response.status === 422 && data.fields) {
@@ -192,7 +194,7 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
     } finally { clearTimeout(timer); lock.current = false; }
   }
 
-  if (status === "success") return <div ref={result} tabIndex={-1} className="form-success" role="status"><span className="success-mark" aria-hidden="true">✓</span><p className="eyebrow">{label("REQUEST SAVED", "DEMANDE ENREGISTRÉE")}</p><h2>{label("Thanks for telling us about your project.", "Merci de nous parler de votre projet.")}</h2><p>{label("Your enquiry has been saved. Keep this reference for any follow-up with BestSauna.ca.", "Votre demande a été enregistrée. Conservez ce numéro pour tout suivi avec BestSauna.ca.")}</p><div className="reference-number">{reference}</div><p>{label("This is an enquiry, not an order or reservation. Products, services, and terms will be confirmed in a written quotation.", "Cette demande ne constitue ni une commande ni une réservation. Les produits, les services et les conditions seront confirmés dans une soumission écrite.")}</p><a href={`mailto:info@bestsauna.ca?subject=${encodeURIComponent(`BestSauna ${reference}`)}`} className="button">{label("EMAIL BESTSAUNA", "NOUS ÉCRIRE")}</a></div>;
+  if (status === "success") return <div ref={result} tabIndex={-1} className="form-success" role="status"><span className="success-mark" aria-hidden="true">✓</span><p className="eyebrow">{label("REQUEST SAVED", "DEMANDE ENREGISTRÉE")}</p><h2>{label("Thanks for telling us about your project.", "Merci de nous parler de votre projet.")}</h2><p>{label("Your enquiry has been saved. Keep this reference for any follow-up with BestSauna.ca.", "Votre demande a été enregistrée. Conservez ce numéro pour tout suivi avec BestSauna.ca.")}</p><div className="reference-number">{reference}</div>{notificationNeedsFollowUp && <div className="form-alert" role="alert">{label("Your request is safely saved, but we couldn’t confirm the email notification to our team. Please email us with this reference so we can follow up. You do not need to submit the form again.", "Votre demande est bien enregistrée, mais nous n’avons pas pu confirmer l’envoi de l’avis par courriel à notre équipe. Écrivez-nous avec cette référence pour assurer le suivi. Il n’est pas nécessaire de remplir le formulaire à nouveau.")}</div>}<p>{label("This is an enquiry, not an order or reservation. Products, services, and terms will be confirmed in a written quotation.", "Cette demande ne constitue ni une commande ni une réservation. Les produits, les services et les conditions seront confirmés dans une soumission écrite.")}</p><a href={`mailto:info@bestsauna.ca?subject=${encodeURIComponent(`BestSauna ${reference}`)}`} className="button">{label("EMAIL BESTSAUNA", "NOUS ÉCRIRE")}</a></div>;
 
   return <form className="quote-form" onSubmit={submit} noValidate aria-busy={status === "saving"}>
     <ol className="quote-progress" aria-label={label("Request progress", "Étapes de la demande")}><li aria-current={!reviewing ? "step" : undefined}>01 {label("YOUR DETAILS", "VOS RENSEIGNEMENTS")}</li><li aria-current={reviewing ? "step" : undefined}>02 {label("REVIEW & SEND", "VÉRIFIER ET ENVOYER")}</li></ol>

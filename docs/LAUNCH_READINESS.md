@@ -22,7 +22,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | Installation coverage | A contractor-confirmed service map, actual scopes, qualifications, pricing, specialist trades and support responsibilities. Accepting a national enquiry does not establish national installation coverage. |
 | Commercial applications | Model-specific suitability and warranty approval for the proposed commercial or rental use. |
 | Telephone and mailbox | Verify `(833) 696-9996` routing and `info@bestsauna.ca` ownership/access. Source-code contact links do not prove either. |
-| Monitored quotations | Assign an intake operator and review schedule; verify authorized retrieval of a controlled saved enquiry. If inbox notification is the chosen route, implement, configure and verify it. Version 1 stores enquiries and sends no notifications. |
+| Monitored quotations | Assign an intake operator and review schedule; verify authorized retrieval of a controlled saved enquiry. Formspree notifications are implemented; verify the linked info@bestsauna.ca address, enable its Email workflow, set QUOTE_EMAIL_ENABLED=true and confirm a controlled notification. Check quota and failed/uncertain notification records. |
 | Seller and quotation terms | Confirm the legal seller, customer-facing company details, payment/change/cancellation terms, delivery boundaries, warranty allocation and other terms needed for actual orders. Grafov Group Inc. is intended, not verified here against legal records. |
 | Privacy and retention | Adopt a retention period and access/deletion procedure. Match the privacy notice to actual processors, storage and notifications. Implement deletion before promising automatic retention limits; do not claim Canadian-only data residency. |
 | Public access and domain | Decide when to make the Sites project public, configure BestSauna.ca DNS/domain handling and verify HTTPS, canonical host behaviour and redirects. |
@@ -42,7 +42,7 @@ Category and planning pages can remain useful without a published product catalo
 - [ ] Contact links, logos, images, favicons and nested-route asset paths work in the browsers actually checked.
 - [ ] No invented reviews, dealer badges, medical benefits, national installation promises, product offers or maintenance claims have entered the published pages or structured data.
 
-The backend's nine SQLite-based tests passed during implementation. They do not establish live deployment, working telephone/mailbox routing, notifications or active intake monitoring. Complete the checks against the actual configured review and production environments.
+The intake, draft and notification tests pass; consult the dated verification record for the current count. They do not establish live deployment, working telephone/mailbox routing, notifications or active intake monitoring. Complete the checks against the actual configured review and production environments.
 
 ## Release record
 

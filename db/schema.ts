@@ -27,6 +27,10 @@ export const quoteEnquiries = sqliteTable("quote_enquiries", {
   privacyAccepted: integer("privacy_accepted", { mode: "boolean" }).notNull(),
   privacyVersion: text("privacy_version").notNull(),
   status: text("status", { enum: ["new", "in_progress", "closed"] }).notNull().default("new"),
+  notificationStatus: text("notification_status", { enum: ["not_requested", "pending", "sending", "accepted", "failed", "unknown"] }).notNull().default("not_requested"),
+  notificationAttemptedAt: text("notification_attempted_at"),
+  notificationAcceptedAt: text("notification_accepted_at"),
+  notificationError: text("notification_error"),
 }, (table) => [index("quote_enquiries_created_at_idx").on(table.createdAt)]);
 
 // Only HMAC-derived keys are stored. No raw IP address is written to D1.

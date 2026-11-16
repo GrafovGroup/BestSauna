@@ -48,6 +48,7 @@ Use the starter-owned installer once; do not overlap installers or replace the l
 | `PUBLIC_INDEXABLE` | Enables production indexing only when its value is exactly `true` | Unset/other values keep indexing disabled |
 | `RATE_LIMIT_SECRET` | Private secret for HMAC-derived abuse-control keys | Required for form submission; at least 32 characters |
 | `DB` | Cloudflare D1 binding for quotations and rate counters | Required for form submission |
+| `QUOTE_EMAIL_ENABLED` | Set exactly `true` to notify through the approved Formspree form | Leave unset for offline/local tests; verify the Formspree recipient before enabling |
 
 Configure hosted values through the Sites environment/binding controls. For local Cloudflare development, use an ignored `.dev.vars` file with local values, including a separate securely generated `RATE_LIMIT_SECRET`. Do not put real secrets into Git or any `PUBLIC_*` setting. `DB` is a binding declared by the hosting configuration, not a database password pasted into frontend code.
 
@@ -114,7 +115,7 @@ See `package.json` for the current `verify` composition. The individual backend 
 node --experimental-strip-types --test tests/quote-service.test.mjs
 ```
 
-The backend suite has **nine tests** using the actual generated migrations with Node SQLite. The tests cover committed storage, field and transport validation, streaming size limits, duplicate retries/conflicts, concurrent duplicates, atomic rate limits and resets, missing configuration, write failures and SQL parameter binding. All nine passed during backend implementation. This does not establish production deployment, email delivery, owner monitoring or completed browser/accessibility checks.
+The intake and notification suite uses the actual generated migrations with Node SQLite. It covers committed storage, validation, body limits, duplicate/concurrent retries, rate limits, configuration and write failures, SQL binding, Formspree payloads, one-time notification claims and uncertain provider outcomes. Tests use a mocked notification transport and never send email. See the current counts and live verification boundaries in `docs/VALIDATION.md`.
 
 Before release, also review the actual English/French customer journeys at narrow and desktop widths, keyboard navigation, language switching, real endpoint behaviour, page metadata and images. Record only checks actually performed.
 
@@ -122,13 +123,13 @@ Before release, also review the actual English/French customer journeys at narro
 
 The bilingual form now has a details step and an explicit review-before-send step. A short-lived `sessionStorage` draft preserves entries across reloads and EN/FR navigation in the same tab. A new finder/service context starts a separate brief. Drafts expire 30 minutes after the last edit or send attempt; they are removed while the form remains open or on its next access, after a confirmed save, or with **Clear draft**. Consent and the honeypot are not restored. Storage failures leave the in-memory form usable and display a notice.
 
-Retry identity is stored as a UUID and a SHA-256 payload fingerprint alongside the draft. An unchanged retry after reload uses the same key. No enquiry is sent until the visitor uses the final send button. Phone replies require a telephone number; validation includes a focused, linked error summary. The privacy notice records this browser storage behaviour with version `2026-11-16.2`.
+Retry identity is stored as a UUID and a SHA-256 payload fingerprint alongside the draft. An unchanged retry after reload uses the same key. No enquiry is sent until the visitor uses the final send button. Phone replies require a telephone number; validation includes a focused, linked error summary. The privacy notice records this browser storage behaviour with version `2026-11-16.3`.
 
-`npm run verify` now includes five draft lifecycle tests as well as the nine intake tests. See the dated continuation record in [Validation](docs/VALIDATION.md).
+`npm run verify` now includes five draft lifecycle tests as well as the intake and notification tests. See the dated continuation record in [Validation](docs/VALIDATION.md).
 
 ## How quotation intake works
 
-The form sends a validated project enquiry to `/api/quotes`. A success response means the enquiry was committed to D1 and returns a reference beginning `BS-`. **Version 1 sends no emails, webhooks or customer receipts.**
+The form sends a validated project enquiry to `/api/quotes`. A success response means the enquiry was committed to D1 and returns a reference beginning `BS-`. When `QUOTE_EMAIL_ENABLED=true`, the Worker then submits a notification to `https://formspree.io/f/mljbjqwy`. The recipient is set in Formspree’s Email workflow, with `info@bestsauna.ca` as the intended verified destination. No customer autoresponse is configured by this code.
 
 - UUID idempotency keys allow safe retries after a lost response.
 - A unique database constraint protects against duplicate inserts.
@@ -137,7 +138,7 @@ The form sends a validated project enquiry to `/api/quotes`. A success response 
 - No file uploads or public enquiry retrieval endpoints are included.
 - The browser should preserve values after an error and clear the form only after confirmed success.
 
-Read enquiries through the site's **authenticated Sites database tools**. Assign an operator and a review schedule before launch. If email notification is the intended operating route, implement, configure and verify it first. Detailed behaviour, example retrieval SQL and failure handling are in [Enquiry operations](docs/ENQUIRY_OPERATIONS.md).
+Read enquiries and notification outcomes through the site's **authenticated Sites database tools**. Formspree acceptance is recorded separately from inbox delivery. Replays do not resend notifications, and uncertain failures require operator review rather than automatic duplicate email. Assign an intake operator and check the Formspree quota and destination before public launch. Detailed behaviour, retrieval SQL and failure handling are in [Enquiry operations](docs/ENQUIRY_OPERATIONS.md).
 
 ## Content, branding and publication
 

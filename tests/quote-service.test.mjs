@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { handleQuoteRequest, MAX_QUOTE_BODY_BYTES } from "../lib/quote-service.ts";
+import { handleQuoteRequest, MAX_QUOTE_BODY_BYTES, NOTIFICATION_TIMEOUT_MS } from "../lib/quote-service.ts";
 
 const ORIGIN = "https://bestsauna.ca";
 const SECRET = "test-only-rate-limit-secret-with-more-than-32-characters";
@@ -58,7 +58,7 @@ test("a successful French enquiry is committed with a reference and private oper
   assert.equal(response.status, 201);
   assert.equal(response.headers.get("Cache-Control"), "no-store");
   const result = await response.json();
-  assert.deepEqual(Object.keys(result).sort(), ["ok", "reference"]);
+  assert.deepEqual(Object.keys(result).sort(), ["notification", "ok", "reference"]);
   assert.equal(result.ok, true);
   assert.match(result.reference, /^BS-20261116-[A-F0-9]{12}$/);
   const saved = store.sqlite.prepare("SELECT * FROM quote_enquiries").get();
@@ -193,4 +193,148 @@ test("SQL-looking user text is stored as data and cleanup failures cannot undo c
   assert.equal(response.status, 201);
   assert.equal(store.count(), 1);
   assert.equal(store.sqlite.prepare("SELECT message FROM quote_enquiries").get().message, message);
+});
+
+function notificationEnvironment(store) { return { ...environment(store), QUOTE_EMAIL_ENABLED: "true" }; }
+const acceptedByFormspree = () => new Response(JSON.stringify({ ok: true, next: '/thanks' }), { status: 200 });
+
+test("Formspree receives one committed, readable quotation with reply-to and reference", async t => {
+  const store = database(t);
+  const calls = [];
+  const transport = async (url, init) => {
+    assert.equal(store.count(), 1, "save before notifying");
+    calls.push({ url, init });
+    return acceptedByFormspree();
+  };
+  const key = crypto.randomUUID();
+  const data = payload({ intendedUse: "commercial", commercialDetails: "Hôtel — quatre utilisateurs", message: "Un sauna, merci.", budget: "20,000", heat: "electric", contactMethod: "phone", phone: "4165550100" });
+  const result = await (await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport)).json();
+  assert.equal(result.notification, "accepted");
+  const retry = await (await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport)).json();
+  assert.equal(retry.reference, result.reference);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://formspree.io/f/mljbjqwy");
+  assert.equal(calls[0].init.headers.Accept, "application/json");
+  assert.equal(calls[0].init.redirect, "manual");
+  const outgoing = JSON.parse(calls[0].init.body);
+  assert.equal(outgoing.email, data.email);
+  assert.equal(outgoing.reference, result.reference);
+  assert.equal(outgoing.language, "French / Français");
+  assert.match(outgoing.subject, /New quote request BS-/);
+  assert.match(outgoing.message, /Supply, delivery & assembly/);
+  assert.match(outgoing.message, /Hôtel — quatre utilisateurs/);
+  assert.match(outgoing.message, /Reply preference: Phone/);
+  assert.match(outgoing.message, /Privacy notice acknowledged: 2026-11-16.3/);
+  assert.doesNotMatch(calls[0].init.body, /192\.0\.2\.10|payload_hash|idempotency_key|rate_limit/);
+  const saved = store.sqlite.prepare('SELECT notification_status, notification_accepted_at, notification_error FROM quote_enquiries').get();
+  assert.equal(saved.notification_status, 'accepted');
+  assert.equal(saved.notification_accepted_at, new Date(NOW).toISOString());
+  assert.equal(saved.notification_error, null);
+});
+
+test("simultaneous retries claim only one external notification", async t => {
+  const store = database(t);
+  const key = crypto.randomUUID();
+  let calls = 0;
+  let finish;
+  const transport = async () => { calls++; await new Promise(resolve => { finish = resolve; }); return acceptedByFormspree(); };
+  const first = handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+  // Wait for the first transport to hold the database claim.
+  while (!finish) await new Promise(resolve => setImmediate(resolve));
+  const other = await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal((await other.json()).notification, 'sending');
+  finish();
+  assert.equal((await (await first).json()).notification, 'accepted');
+  assert.equal(calls, 1);
+  assert.equal(store.count(), 1);
+});
+
+test("provider rejection or an uncertain response preserves the enquiry and never blindly resends", async t => {
+  for (const [response, state, code] of [
+    [() => new Response('', { status: 307, headers: { Location: 'https://example.com/unexpected' } }), 'failed', 'provider_redirect'],
+    [() => new Response('{}', { status: 422 }), 'failed', 'provider_rejected'],
+    [() => new Response('{}', { status: 429 }), 'failed', 'provider_rate_limit'],
+    [() => new Response('{}', { status: 503 }), 'unknown', 'provider_unavailable'],
+    [() => new Response(JSON.stringify({ ok: false })), 'unknown', 'unexpected_response'],
+    [() => new Response('<html>not JSON</html>'), 'unknown', 'unexpected_response'],
+    [() => { throw new DOMException('private upstream data', 'AbortError'); }, 'unknown', 'network_or_timeout'],
+  ]) {
+    const store = database(t);
+    let calls = 0;
+    const transport = async () => { calls++; return response(); };
+    const key = crypto.randomUUID();
+    const first = await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal(first.status, 201);
+    const body = await first.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.notification, state);
+    assert.equal(store.count(), 1);
+    assert.equal(store.sqlite.prepare('SELECT notification_error FROM quote_enquiries').get().notification_error, code);
+    await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal(calls, 1);
+    assert.doesNotMatch(JSON.stringify(body), /private upstream/);
+  }
+});
+
+test("an outcome-write failure cannot erase the save or send a duplicate", async t => {
+  const store = database(t);
+  const env = { ...notificationEnvironment(store), DB: { prepare(sql) {
+    if (sql.includes('SET notification_status = ?')) throw new Error('database offline');
+    return store.DB.prepare(sql);
+  } } };
+  let calls = 0;
+  const transport = async () => { calls++; return acceptedByFormspree(); };
+  const key = crypto.randomUUID();
+  const first = await handleQuoteRequest(request(payload(), { key }), env, () => NOW, transport);
+  assert.equal(first.status, 201);
+  assert.equal((await first.json()).notification, 'unknown');
+  await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(calls, 1);
+  assert.equal(store.count(), 1);
+  assert.equal(store.sqlite.prepare('SELECT notification_status FROM quote_enquiries').get().notification_status, 'sending');
+});
+
+test("disabled notifications, old enquiries and invalid submissions never contact Formspree", async t => {
+  const store = database(t);
+  let calls = 0;
+  const transport = async () => { calls++; return acceptedByFormspree(); };
+  const key = crypto.randomUUID();
+  const old = await handleQuoteRequest(request(payload(), { key }), environment(store), () => NOW, transport);
+  assert.equal((await old.json()).notification, 'not_requested');
+  const replay = await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal((await replay.json()).notification, 'not_requested');
+  const invalid = await handleQuoteRequest(request(payload({ website: 'bot' })), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(invalid.status, 422);
+  assert.equal(calls, 0);
+});
+
+test("an unresponsive notification is aborted at its deadline without losing the saved request", async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const store = database(t);
+  let signal;
+  const transport = async (_url, init) => {
+    signal = init.signal;
+    return new Promise((_resolve, reject) => signal.addEventListener('abort', () => reject(new DOMException('Timed out', 'AbortError')), { once: true }));
+  };
+  const pending = handleQuoteRequest(request(), notificationEnvironment(store), () => NOW, transport);
+  while (!signal) await new Promise(resolve => setImmediate(resolve));
+  t.mock.timers.tick(NOTIFICATION_TIMEOUT_MS);
+  const result = await pending;
+  assert.equal(signal.aborted, true);
+  assert.equal(result.status, 201);
+  assert.equal((await result.json()).notification, 'unknown');
+  assert.equal(store.count(), 1);
+});
+
+test("a failed enquiry insert never triggers an email even when notifications are enabled", async t => {
+  const store = database(t);
+  const env = { ...notificationEnvironment(store), DB: { prepare(sql) {
+    if (sql.includes('INSERT INTO quote_enquiries')) throw new Error('database offline');
+    return store.DB.prepare(sql);
+  } } };
+  let calls = 0;
+  const response = await handleQuoteRequest(request(), env, () => NOW, async () => { calls++; return acceptedByFormspree(); });
+  assert.equal(response.status, 503);
+  assert.equal(calls, 0);
+  assert.equal(store.count(), 0);
 });

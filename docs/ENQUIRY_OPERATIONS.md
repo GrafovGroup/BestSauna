@@ -2,13 +2,14 @@
 
 ## What the form actually does
 
-`POST /api/quotes` validates an enquiry and stores it in the private D1 database bound as `DB`. A successful response is `{ "ok": true, "reference": "BS-…" }`. It means the database accepted the record. **Version 1 does not send email, webhooks, customer receipts or other notifications.** There is no public enquiry-reading endpoint.
+`POST /api/quotes` validates an enquiry and stores it in the private D1 database bound as `DB`. A successful response is `{ "ok": true, "reference": "BS-…", "notification": "accepted" }` (the notification status varies). Success means the database accepted the record. With `QUOTE_EMAIL_ENABLED=true`, the server also submits the saved enquiry to the owner-provided Formspree endpoint `https://formspree.io/f/mljbjqwy`. Formspree’s Email workflow determines the recipient; configure the verified address `info@bestsauna.ca`. `accepted` means Formspree accepted its API request, not proof of inbox delivery. No customer autoresponse is added by this integration. There is no public enquiry-reading endpoint.
 
 Use “Your enquiry has been saved” / “Votre demande a été enregistrée” with the reference. Do not promise an email, an inbox delivery or a response deadline that has not been established.
 
 ## Configuration and database
 
-- Apply the generated Drizzle migrations before using the form. Tables are `quote_enquiries` and `quote_rate_limits`.
+- Apply both generated Drizzle migrations before using this release. `0001_rainy_black_tom.sql` appends notification tracking columns; existing enquiries default to `not_requested` and are not backfilled or emailed. Tables remain `quote_enquiries` and `quote_rate_limits`.
+- Set `QUOTE_EMAIL_ENABLED=true` only after verifying the Formspree destination. Keep it unset/false in ordinary local development so tests do not send real notifications. The fixed endpoint cannot be replaced by form input.
 - Configure the `DB` binding and a private `RATE_LIMIT_SECRET` of at least 32 characters. Keep the secret out of Git, client bundles and public environment files.
 - Use the same-origin endpoint with JSON. The browser supplies a UUID in `Idempotency-Key` and retains it while retrying the same submission. Generate a new key after a confirmed submission or an intentional edit after a conflict.
 - API responses are not cacheable. Validation uses server-side allowlists and length limits; field error codes are `required`, `invalid` and `too_long` for the frontend to translate.
@@ -39,13 +40,13 @@ ORDER BY created_at ASC;
 
 Use the reference to locate the full record and record progress by updating `status` to `in_progress` or `closed`. Restrict database access and exported customer data. Do not publish query results, customer details or database exports in the repository.
 
-**Before public launch, assign an operator to monitor intake and establish the review schedule. If inbox notification is the intended operational route, it must first be implemented, configured and verified with an authorized controlled submission.** A functioning database form without a monitored retrieval process is not a completed sales-intake operation. This document does not claim that operator monitoring or email delivery has already been verified.
+**Before public launch, assign an operator to monitor intake and establish the review schedule.** Keep the database as a fallback if email is filtered, the quota is exhausted or Formspree is unavailable. The dated validation record distinguishes provider acceptance from independently confirmed inbox delivery.
 
 ## Privacy and records
 
 Records include supplied contact/project information, language/source path, submission time, idempotency data and the accepted privacy-notice version. `privacyAccepted` confirms the form's displayed enquiry/privacy notice; it is not marketing consent. The application does not write submission bodies, email addresses, raw IPs or provider traces to its logs. Hosting-platform logging is governed separately by the actual platform configuration.
 
-The implementation does not promise Canadian-only data residency or automatic enquiry deletion. The owner must adopt a retention period and access/deletion procedure, ensure the published privacy notice describes the actual processors and handling, and implement any required scheduled deletion before promising one. The form stores version `2026-11-16`; update that version when the substantive notice changes. Coordinate customer-record deletion with applicable business requirements and backup/platform behaviour.
+The implementation does not promise Canadian-only data residency or automatic enquiry deletion. The owner must adopt a retention period and access/deletion procedure, ensure the published privacy notice describes the actual processors and handling, and implement any required scheduled deletion before promising one. Contact and project details, source path, reference and privacy version are also sent to Formspree. The notification contains no idempotency key, payload hash or raw IP. Formspree stores submissions in its archive and the email provider processes notifications. The form stores version `2026-11-16.3`; update that version when the substantive notice changes. Coordinate customer-record deletion with applicable business requirements and backup/platform behaviour.
 
 ## Failure handling
 
@@ -58,3 +59,36 @@ The implementation does not promise Canadian-only data residency or automatic en
 ## Verification
 
 Run `node --experimental-strip-types --test tests/quote-service.test.mjs`. Tests load the actual generated migrations into Node SQLite and exercise server validation, transport/body limits, privacy acceptance, idempotency, concurrent duplicates, the atomic limiter and persistence failures. These tests do not establish production deployment, owner monitoring or inbox delivery. Verify a controlled request against the configured site and confirm its database record before reporting production intake as verified.
+
+## Notification behaviour and recovery
+
+The React UI retains its existing validation, draft, review and error states. Its same-origin request reaches the Cloudflare Worker; a native server `fetch` implements Formspree’s JSON/AJAX protocol after database storage. Replacing this with a second client-side SDK submission would bypass the database claim and risk duplicate notifications. The payload uses Formspree’s `email` reply-to field and a fixed subject containing the saved reference.
+
+The Worker atomically changes a new enquiry from `pending` to `sending` before its one outbound request. An eight-second deadline bounds that request. No detached promise is used. Status values:
+
+| Status | Meaning |
+| --- | --- |
+| `not_requested` | Email was disabled when stored, or this predates notification support. Never automatically backfilled. |
+| `pending` | Saved, but the send has not been claimed. An identical API retry can claim it. |
+| `sending` | The send was claimed; it may still be in flight or the process could have stopped. |
+| `accepted` | Formspree returned successful JSON with `ok: true`; check the mailbox/workflow for delivery. |
+| `failed` | Formspree returned a redirect (not followed) or a 4xx rejection, including 429 for quota/rate limits. |
+| `unknown` | Network timeout, 5xx, malformed response or an internal status-update failure left the outcome uncertain. |
+
+Notification failure never converts a committed enquiry into a failed submission. For pending/failed/uncertain outcomes the confirmation retains the reference and asks the visitor to email it, without submitting the form again. A failed status write leaves the durable `sending` claim to prevent an automatic second email. There is no scheduled retry job and no claim of exactly-once delivery from Formspree.
+
+Operators should inspect stale `pending`/`sending`, `failed` and `unknown` rows alongside new enquiries:
+
+```sql
+SELECT reference, created_at, notification_status, notification_attempted_at,
+       notification_accepted_at, notification_error
+FROM quote_enquiries
+WHERE notification_status IN ('pending', 'sending', 'failed', 'unknown')
+ORDER BY created_at;
+```
+
+Check Formspree’s submission archive and workflow history for the reference before manually forwarding a notification. Do not reset uncertain rows and resend blindly: Formspree could already have accepted the original request. Review the saved enquiry directly and contact the customer through the normal business process. Fixed error codes contain no provider trace or personal data.
+
+Changing the recipient, CAPTCHA requirement, spam rules, quota or enabled state in Formspree can affect notifications without a code change. This integration was prepared for the observed enabled form with CAPTCHA disabled and Formshield enabled; it does not alter those controls. Keep the email workflow enabled, use a verified linked address, and monitor the account’s submission allowance.
+
+Primary integration references: [Formspree JSON submission](https://formspree.io/blog/type-safe-form-pipeline/) and [special fields](https://help.formspree.io/articles/building-your-form/special-fields).
