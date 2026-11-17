@@ -2,6 +2,19 @@
 
 The owner selected WHC hosting on 2026-11-16. The existing owner-private Sites deployment remains a review copy. The public application uses Next.js on the existing WHC cPanel/CloudLinux Node runtime; it does not require a new hosting purchase.
 
+Public launch completed on 2026-11-16 (Toronto) at `https://bestsauna.ca`. Runtime source is commit `175033665289a0d73bf2df0f5cdebfe35df5d8a2`. The application directory is `/home/nvfglyl5/bestsauna-live`, public document root `/home/nvfglyl5/bestsauna.ca`, and private data/configuration directory `/home/nvfglyl5/.bestsauna`. Google reports the HTTPS sitemap successful with 40 discovered pages; Bing accepted it and was processing at handoff. See `VALIDATION.md` for exact evidence and limitations.
+
+The document-root `.htaccess` retains cPanel's generated Passenger configuration and adds the following HTTPS redirect. Its ACME exception allows certificate renewal. The www HTTPS redirect is handled by the Node entry point.
+
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://bestsauna.ca%{REQUEST_URI} [R=308,L]
+```
+
+The cPanel certificate wizard issued a free certificate for BestSauna alone; the verified certificate also covers www. Do not run account-wide SSL mutations for a BestSauna-only task. On this LiteSpeed host, verify restart by the actual application process; only terminate/restart workers whose full process name identifies `/home/nvfglyl5/bestsauna-live/`.
+
 ## Build and release
 
 Use Node 24 (WHC currently provides 24.22.3). Run `npm run verify`, `npm run build:whc`, then `npm run package:whc`. The archive is `outputs/bestsauna-whc.tar.gz`. The packager includes only compiled pages, public assets, runtime files and SQL migrations. It excludes credentials, environment files, local databases, Git and build caches. Install runtime dependencies using the included lockfile and `npm ci --omit=dev --ignore-scripts --no-audit --no-fund` on the Linux host. Do not copy macOS node_modules to WHC.

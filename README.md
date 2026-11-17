@@ -12,22 +12,22 @@ The website contains **40 English/French content routes**, including three buyin
 | Current review branch | `codex/continue-build` — [draft PR #1](https://github.com/GrafovGroup/BestSauna/pull/1) |
 | Sites project | `appgprj_6afb50c9831c8191825be1b8da69c2de` |
 | Configured private review destination | [bestsauna.dimagrafov.chatgpt.site](https://bestsauna.dimagrafov.chatgpt.site) |
-| Intended public domain | `BestSauna.ca` — domain/DNS and public access require a separate verified launch step |
+| Public website | [bestsauna.ca](https://bestsauna.ca/) — WHC Node 24 / private SQLite, launched 2026-11-16 (Toronto) |
 
-The GitHub repository is the source of record. Sites receives a matching hosting copy. A configured project URL is not evidence that the latest source has been deployed; verify the actual deployment and access state before reporting it as live.
+The GitHub repository is the source of record. The public WHC release is `175033665289a0d73bf2df0f5cdebfe35df5d8a2`. The retained Sites deployment is an earlier owner-private review copy; it was not made public during the WHC migration.
 
-The default site origin is the private review destination. Search indexing remains disabled unless `PUBLIC_INDEXABLE` is explicitly set to `true`. Private access is a separate Sites hosting setting; `noindex` is not access control.
+The default site origin remains the private review destination for safe development. WHC explicitly sets `PUBLIC_SITE_URL=https://bestsauna.ca`, `PUBLIC_INDEXABLE=true` and `QUOTE_EMAIL_ENABLED=true`. Google accepted the public sitemap with 40 discovered pages; Bing accepted it for processing. Submission does not establish indexing.
 
 ## Architecture
 
-- **Application:** React with Next-compatible routes. The WHC target uses Next.js and a Passenger entry point; the private review target retains Vinext/Cloudflare. See [WHC deployment](docs/WHC_HOSTING.md) for packaging and runtime configuration.
+- **Application:** React with Next-compatible routes. The WHC target uses Next.js with CloudLinux/LiteSpeed (and supports Passenger); the private review target retains Vinext/Cloudflare. See [WHC deployment](docs/WHC_HOSTING.md) for packaging and runtime configuration.
 - **Content:** one bilingual page and route map in `content/site.ts`; customer-facing pages under `app/[lang]/`.
 - **Service planning:** bilingual delivery/installation planner creates a requested-work brief; see [Service planner](docs/SERVICE_PLANNER.md).
-- **Quotations:** same-origin `POST /api/quotes`, with server validation and D1 storage.
+- **Quotations:** same-origin `POST /api/quotes`, with server validation and private SQLite storage on WHC; the review Worker uses D1.
 - **Database:** Drizzle schema in `db/schema.ts`; versioned SQL migrations in `drizzle/`.
-- **Hosting:** Sites tooling manages the review/deployment lifecycle and declared Cloudflare bindings.
+- **Hosting:** WHC cPanel hosts the public Node application. Sites tooling retains the private review deployment and Cloudflare bindings.
 
-This is not a PHP application or a standalone HTML export. Uploading its source or `dist/` directory to ordinary WHC shared hosting will not provide the Worker/D1 runtime. A WHC move would require an explicit supported architecture change and replacement of the quotation backend; a static export is **not currently supplied**.
+Deploy the compiled WHC archive through the existing cPanel Node runtime using `app.cjs`; follow `docs/WHC_HOSTING.md`. Keep the SQLite database and runtime configuration outside the application and public document roots. A static HTML export is not supplied.
 
 ## Local setup
 
@@ -130,7 +130,7 @@ Retry identity is stored as a UUID and a SHA-256 payload fingerprint alongside t
 
 ## How quotation intake works
 
-The form sends a validated project enquiry to `/api/quotes`. A success response means the enquiry was committed to D1 and returns a reference beginning `BS-`. When `QUOTE_EMAIL_ENABLED=true`, the Worker then submits a notification to `https://formspree.io/f/mljbjqwy`. The recipient is set in Formspree’s Email workflow, with `info@bestsauna.ca` as the intended verified destination. No customer autoresponse is configured by this code.
+The form sends a validated project enquiry to `/api/quotes`. A success response means the enquiry was committed to the private database and returns a reference beginning `BS-`. When `QUOTE_EMAIL_ENABLED=true`, the server then submits a notification to `https://formspree.io/f/mljbjqwy`. The recipient is set in Formspree’s Email workflow, with `info@bestsauna.ca` as the intended verified destination. No customer autoresponse is configured by this code.
 
 - UUID idempotency keys allow safe retries after a lost response.
 - A unique database constraint protects against duplicate inserts.
@@ -139,7 +139,7 @@ The form sends a validated project enquiry to `/api/quotes`. A success response 
 - No file uploads or public enquiry retrieval endpoints are included.
 - The browser should preserve values after an error and clear the form only after confirmed success.
 
-Read enquiries and notification outcomes through the site's **authenticated Sites database tools**. Formspree acceptance is recorded separately from inbox delivery. Replays do not resend notifications, and uncertain failures require operator review rather than automatic duplicate email. Assign an intake operator and check the Formspree quota and destination before public launch. Detailed behaviour, retrieval SQL and failure handling are in [Enquiry operations](docs/ENQUIRY_OPERATIONS.md).
+Read public enquiries through the private WHC SQLite database using the authenticated cPanel terminal. The **authenticated Sites database tools** access only the retained review deployment's D1 records. Formspree acceptance is recorded separately from inbox delivery. Replays do not resend notifications, and uncertain failures require operator review rather than automatic duplicate email. Assign an intake operator and check the Formspree quota and destination before public launch. Detailed behaviour, retrieval SQL and failure handling are in [Enquiry operations](docs/ENQUIRY_OPERATIONS.md).
 
 ## Content, branding and publication
 
@@ -172,4 +172,4 @@ Review [Launch readiness](docs/LAUNCH_READINESS.md) before making the site publi
 
 Grafov Group Inc. is the intended operating company. Confirm customer-facing seller details against the owner's business records before using them in binding quotations or final legal policies.
 
-Deployment should preserve the repository as the source of record, copy the matching version to the authorized Sites project, apply its migrations and verify the live result. Changes to public access, BestSauna.ca DNS and indexing are explicit launch steps, separate from compiling or previewing the application.
+Future public releases must preserve the repository as the source of record, deploy the matching WHC archive, retain the private SQLite database and verify the live result. The November 16 launch, DNS/mail preservation and search submission evidence are recorded in `docs/VALIDATION.md`.

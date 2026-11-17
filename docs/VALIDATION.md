@@ -1,6 +1,19 @@
 # BestSauna implementation verification
 
-Verified on 2026-11-16. This is a quotation-led review release, not a confirmation of supplier approval or commercial launch readiness.
+The quotation-led public WHC release was verified on 2026-11-16 (Toronto). Technical launch does not establish supplier approval, product availability or active sales monitoring. Earlier review checkpoints are retained below.
+
+## Public WHC launch — 2026-11-16 (Toronto), 2026-11-17 UTC
+
+- Deployed clean source commit `175033665289a0d73bf2df0f5cdebfe35df5d8a2` to `/home/nvfglyl5/bestsauna-live`, Node 24.22.3, startup `app.cjs`. Runtime dependencies installed from the supplied lockfile. Private configuration and SQLite live in `/home/nvfglyl5/.bestsauna`, outside the separate public document root. The clean release removed temporary proxy diagnostics.
+- Final verification: **64 tests passed**, typecheck and content/catalogue checks passed, Next production build passed. The retained Worker build passed earlier in this migration. No actual product records or supplier claims were added.
+- Changed only bestsauna.ca's web A record to `51.161.57.68` (TTL 300), retaining its www CNAME, WHC parking nameservers, Forward Email MX records, forwarding verification TXT and SPF. The original zone is backed up locally. Added Google TXT and Bing verification CNAME records afterward.
+- A domain-scoped cPanel Let's Encrypt request installed valid HTTPS for apex and www. An account-wide AutoSSL check was rejected by automatic approval review and was not executed. Added a canonical HTTPS rewrite while preserving cPanel's generated application block and ACME challenge access. HTTP apex/www redirect to HTTPS; HTTPS www redirects to apex, preserving path/query.
+- Public HTTP audit passed all **40 routes** with one H1, expected canonical origin, matching language, indexable metadata and page images. All **74 full/mobile image URLs** returned 200 (8,081,530 bytes total). Public robots allows pages, excludes `/api/`, and names the 40-URL sitemap. Private runtime/database/server file URLs and an unknown page return 404.
+- Hosted French browser review/send saved `BS-20261117-3A0D4BC9F416` over HTTPS. Authenticated SQLite inspection confirmed all three internal WHC QA references and `notification_status=not_requested`. The earlier English reference `BS-20261117-F923C2D1AFDF` survived final worker restart and returned unchanged on an idempotent HTTPS retry without sending email.
+- Enabled `PUBLIC_SITE_URL=https://bestsauna.ca`, `PUBLIC_INDEXABLE=true`, `QUOTE_EMAIL_ENABLED=true` after hosted storage checks, and restarted only the identified BestSauna workers. Formspree retains the verified info@bestsauna.ca recipient. No new real email was sent during migration, so this is not a new inbox-delivery claim; the earlier owner-confirmed recovered test and spam-monitoring limitation remain applicable.
+- Google Search Console domain ownership verified under the signed-in Grafov Group account. Submitted `https://bestsauna.ca/sitemap.xml`; Google visibly reports **Success, 40 discovered pages**. Bing site ownership verified by CNAME; the same HTTPS sitemap was submitted and visibly shows **Processing** dated 2026-11-17. Historical HTTP sitemap entries were left intact. Submission/discovery is not confirmation that the new pages are indexed.
+- The earlier Sites review deployment remains owner-private and non-indexable; its D1 records were not transferred or deleted. Public source remains on the review branch/draft PR; no merge was performed.
+- Evidence: ignored local `outputs/whc-public-http-audit.json`, `outputs/whc-live-home.jpg`, `outputs/whc-google-sitemap-success.jpg`; original zone backup `outputs/whc-bestsauna-before-launch.zone`.
 
 ## WHC migration verification — 2026-11-16 (Toronto)
 
