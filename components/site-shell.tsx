@@ -25,6 +25,7 @@ function pairedPageLink(pageKey:string, lang:Lang, search:Record<string,string|s
 }
 
 function pageQuoteLink(pageKey:string,lang:Lang,search:Record<string,string|string[]|undefined>) {
+  if(pageKey==="commercial"||pageKey==="guide-commercial")return `${pagePath("quote",lang)}?source=${encodeURIComponent(pagePath(pageKey,lang))}&interest=commercial`;
   if(pageKey==="installation"&&hasServicePlan(search))return `${pagePath("quote",lang)}?${servicePlanQuoteQuery(readServicePlan(search),pagePath("installation",lang))}`;
   if(pageKey==="compare") {
     const products=readModelSelection(search,getPublishedProducts()).products;const state=readComparison(search);

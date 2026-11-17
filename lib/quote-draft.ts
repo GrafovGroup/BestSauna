@@ -1,3 +1,4 @@
+import { commercialFieldLimits } from "./commercial-brief.ts";
 /** Short-lived, tab-scoped drafts. Never store consent or the spam-trap field. */
 export const QUOTE_DRAFT_KEY = "bestsauna.quote-draft.v1";
 export const QUOTE_DRAFT_TTL = 30 * 60 * 1000;
@@ -6,6 +7,7 @@ export const quoteFieldLimits: Record<string, number> = {
   name: 120, email: 254, phone: 40, location: 150, intendedUse: 30,
   placement: 30, interest: 30, service: 30, timeframe: 30, contactMethod: 30,
   capacity: 60, heat: 30, budget: 100, message: 2000, commercialDetails: 1500,
+  ...commercialFieldLimits,
 };
 
 export type QuoteFields = Record<string, string>;
@@ -34,7 +36,8 @@ export function readQuoteDraft(storage: StorageLike, context: string, now = Date
     if (!draft.fields || typeof draft.fields !== "object" || Array.isArray(draft.fields)) throw new Error("Invalid fields");
     const fields: QuoteFields = {};
     for (const [key, limit] of Object.entries(quoteFieldLimits)) {
-      const value = draft.fields[key];
+      // Older valid drafts predate the structured commercial fields.
+      const value = draft.fields[key] === undefined && key in commercialFieldLimits ? "" : draft.fields[key];
       if (typeof value !== "string" || value.length > limit) throw new Error("Invalid field");
       fields[key] = value;
     }

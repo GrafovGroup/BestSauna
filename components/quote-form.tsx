@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type { Lang } from "@/content/site";
 import { clearQuoteDraft, QUOTE_DRAFT_TTL, readQuoteDraft, saveQuoteDraft, type QuoteAttempt, type QuoteFields } from "@/lib/quote-draft";
+import { commercialBriefFields, commercialFieldLimits, commercialSubmissionFields } from "@/lib/commercial-brief";
 
 type Props = { lang: Lang; initialProductId?: string; initialMessage?: string; initialPlanContext?: string; selectionAdjusted?: boolean; initialInterest?: string; initialService?: string; initialUse?: string; initialPlacement?: string; initialHeat?: string; sourcePath: string; privacyPath: string };
 type Field = { key: string; title: string; options?: [string, string][]; required?: boolean; type?: string; autoComplete?: string; maxLength?: number; placeholder?: string; multiline?: boolean };
@@ -17,6 +18,7 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
     placement: initialPlacement || (["outdoor", "cottage"].includes(initialInterest) ? "outdoor" : ["indoor", "infrared"].includes(initialInterest) ? "indoor" : ""),
     interest: initialInterest, service: initialService, timeframe: "", contactMethod: "email",
     capacity: "", heat: initialHeat, budget: "", message: initialMessage, commercialDetails: "", website: "",
+    ...Object.fromEntries(Object.keys(commercialFieldLimits).map(key => [key, ""])),
   };
   const context = JSON.stringify([initialInterest, initialService, initialUse, initialPlacement, initialHeat, ...(initialProductId ? [initialProductId] : []), ...(initialPlanContext ? [initialPlanContext] : [])]);
   const [fields, setFields] = useState(initialFields);
@@ -93,7 +95,7 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
     const next = { ...fields, [key]: value };
     setFields(next);
     if (key !== "website") persist(next);
-    setErrors(previous => { const nextErrors = { ...previous }; delete nextErrors[key]; return nextErrors; });
+    setErrors(previous => { const nextErrors = { ...previous }; delete nextErrors[key]; if (key === "intendedUse" && value !== "commercial") for (const field of commercialBriefFields(lang)) delete nextErrors[field.key]; return nextErrors; });
   }
   function discard() {
     if (storage.current) clearQuoteDraft(storage.current);
@@ -122,10 +124,10 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
     { key: "budget", title: label("Project budget, CAD (optional)", "Budget du projet, CAD (facultatif)"), maxLength: 100 },
     { key: "heat", title: label("Heat preference (optional)", "Chauffage souhaité (facultatif)"), options: [["electric", label("Traditional electric", "Électrique traditionnel")], ["wood", label("Wood-fired", "Au bois")], ["infrared", label("Infrared", "Infrarouge")], ["unsure", label("Open to advice", "À déterminer")]] },
     { key: "message", title: label("Your space, ideas, or questions (optional)", "Votre espace, vos idées, vos questions (facultatif)"), multiline: true, maxLength: 2000, placeholder: label("Site access, approximate space, preferred style…", "Accès au site, dimensions approximatives, style souhaité…") },
-    ...(fields.intendedUse === "commercial" ? [{ key: "commercialDetails", title: label("Facility type and expected use (optional)", "Type d’établissement et utilisation prévue (facultatif)"), multiline: true, maxLength: 1500, placeholder: label("Hotel, fitness facility, rental cottage; operating hours and project requirements.", "Hôtel, centre de conditionnement, chalet locatif; heures d’utilisation et exigences du projet.") }] : []),
   ];
   const groups = [
     { title: label("Your project", "Votre projet"), fields: projectFields },
+    ...(fields.intendedUse === "commercial" ? [{ title: label("Your commercial brief", "Votre projet commercial"), description: label("Tell us how the facility will operate. Choose “still deciding” if needed, and add the details you know. The contact below will be our project contact. Equipment suitability and service scope require review for your application.", "Décrivez le fonctionnement de l’établissement. Choisissez « à déterminer » au besoin et ajoutez les détails connus. La personne indiquée ci-dessous sera notre contact pour le projet. L’équipement et les services doivent être évalués selon votre usage."), fields: commercialBriefFields(lang) }] : []),
     { title: label("Your contact details", "Vos coordonnées"), fields: contactFields },
     { title: label("A little more detail", "Quelques précisions"), fields: detailFields },
   ];
@@ -161,7 +163,7 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
       return;
     }
     if (!reviewing) { setReviewing(true); setStatus("idle"); return; }
-    const payload = JSON.stringify({ ...fields, commercialDetails: fields.intendedUse === "commercial" ? fields.commercialDetails : "", language: lang, sourcePath, privacyAccepted: accepted });
+    const payload = JSON.stringify({ ...fields, ...commercialSubmissionFields(fields), commercialBriefVersion: 1, language: lang, sourcePath, privacyAccepted: accepted });
     lock.current = true; setStatus("saving"); setMessage("");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 20000);
@@ -203,7 +205,7 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
     {Object.keys(errors).length > 0 && <div className="form-alert error-summary" ref={errorSummary} tabIndex={-1} role="alert"><strong>{label("Please check these details", "Veuillez vérifier ces renseignements")}</strong><ul>{Object.entries(errors).map(([key, error]) => <li key={key}><a href={`#${key}`}>{allFields.find(field => field.key === key)?.title || label("Privacy notice", "Avis de confidentialité")}: {error}</a></li>)}</ul></div>}
     <div hidden={reviewing}>
       <p className="form-required">{label("Fields marked * are required.", "Les champs marqués d’un * sont obligatoires.")}</p>
-      {groups.map((group, index) => <fieldset key={group.title} disabled={status === "saving"}><legend><span>0{index + 1}</span>{group.title}</legend><div className="form-grid">{group.fields.map(renderField)}</div></fieldset>)}
+      {groups.map((group, index) => <fieldset key={group.title} disabled={status === "saving"}><legend><span>0{index + 1}</span>{group.title}</legend>{"description" in group && <p className="form-group-description">{group.description}</p>}<div className="form-grid">{group.fields.map(renderField)}</div></fieldset>)}
       <div className="honey" aria-hidden="true"><label htmlFor="website">Website</label><input tabIndex={-1} autoComplete="off" id="website" name="website" value={fields.website} onChange={e => update("website", e.target.value)} /></div>
       <div className="privacy-consent"><input type="checkbox" id="privacyAccepted" checked={accepted} required onChange={e => { setAccepted(e.target.checked); setErrors(previous => { const next = { ...previous }; delete next.privacyAccepted; return next; }); }} aria-invalid={!!errors.privacyAccepted} aria-describedby={errors.privacyAccepted ? "error-privacyAccepted" : undefined} /><label htmlFor="privacyAccepted">{fr ? "J’ai lu l’" : "I have read the "}<a href={privacyPath} target="_blank" rel="noreferrer">{label("privacy notice", "avis de confidentialité")}</a>{label(" and understand that my details will be used to handle this enquiry.", " et je comprends que mes renseignements seront utilisés pour traiter cette demande.")}</label></div>{err("privacyAccepted")}
     </div>

@@ -31,7 +31,7 @@ export function ContentPage({page,lang,search,products=[]}:{page:SitePage;lang:L
  const comparedModels=page.kind==="compare"?readModelSelection(search,products).products:[];
  const interest=modelPreferences?.get("interest") || (planActive?"unsure":undefined) || (typeof search.interest==="string"&&allowedInterest.includes(search.interest)?search.interest:"");
  const service=planActive?plan.service:typeof search.service==="string"&&["supply","assembly","managed","unsure"].includes(search.service)?search.service:"";
- const quoteUrl=`${pagePath("quote",lang)}?source=${encodeURIComponent(page.paths[lang])}${allowedInterest.includes(page.key)?`&interest=${page.key}`:""}`;
+ const quoteUrl=`${pagePath("quote",lang)}?source=${encodeURIComponent(page.paths[lang])}${page.key==="guide-commercial"?"&interest=commercial":allowedInterest.includes(page.key)?`&interest=${page.key}`:""}`;
  const selectedSource=(planActive?pagePath("installation",lang):undefined) || product?.paths[lang] || (selection.products.length?pagePath("compare",lang):undefined) || (typeof search.source==="string"&&pages.some(p=>p.paths[lang]===search.source)?search.source:page.paths[lang]);
  const simple=["policy","quote","support","guide-index"].includes(page.kind);
  const illustrated=simple&&page.kind!=="quote"&&Boolean(c.image);
@@ -52,6 +52,6 @@ export function ContentPage({page,lang,search,products=[]}:{page:SitePage;lang:L
    {page.kind==="guide"?<GuideArticle page={page} lang={lang} quoteUrl={quoteUrl}/>:<div className={`container content-sections ${page.kind==="policy"?"reading-width":""}`}>{c.sections.map((section,i)=><section className={`content-section ${section.items?"has-items":""}`} key={section.title}><div className="content-section-heading">{section.eyebrow?<p className="eyebrow">{section.eyebrow}</p>:page.kind!=="policy"&&<span className="section-index">0{i+1}</span>}<h2>{section.title}</h2></div><div className="content-section-body">{section.text&&section.text.split("\n\n").map(p=><p key={p}>{p}</p>)}{section.bullets&&<ul className="detail-list">{section.bullets.map(p=><li key={p}>{p}</li>)}</ul>}{section.items&&<div className="detail-items">{section.items.map(item=><article key={item.title}><h3>{item.title}</h3><p>{item.text}</p></article>)}</div>}</div></section>)}</div>}
    </>}
    {c.faq&&c.faq.length>0&&<FAQ items={c.faq} lang={lang}/>}
-   {c.related.length>0&&<section className="container related-section"><p className="eyebrow">{fr?"POUR CONTINUER":"KEEP EXPLORING"}</p><div>{c.related.map(key=>{const related=pages.find(p=>p.key===key);if(!related)return null;return <a key={key} href={related.paths[lang]}>{related.copy[lang].eyebrow}</a>;})}</div></section>}
+   {c.related.length>0&&<section className="container related-section"><p className="eyebrow">{fr?"POUR CONTINUER":"KEEP EXPLORING"}</p><div>{c.related.map(key=>{const related=pages.find(p=>p.key===key);if(!related)return null;return <a key={key} href={key==="quote"?quoteUrl:related.paths[lang]}>{related.copy[lang].eyebrow}</a>;})}</div></section>}
  </>;
 }

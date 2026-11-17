@@ -387,3 +387,46 @@ test("a failed enquiry insert never triggers an email even when notifications ar
   assert.equal(calls, 0);
   assert.equal(store.count(), 0);
 });
+
+test('structured commercial briefs are validated, saved and notified once in both languages', async t => {
+  const store = database(t);
+  for (const language of ['en', 'fr']) {
+    const calls = [];
+    const key = crypto.randomUUID();
+    const data = payload({ intendedUse: 'commercial', language, commercialBriefVersion: 1,
+      commercialFacility: 'hotel', commercialStage: 'replacement', commercialUsage: 'Guests only',
+      commercialHours: '7 h–21 h', commercialEquipment: 'Existing heater model to follow',
+      commercialProcurement: 'Facilities manager; approval in December', commercialDetails: 'Operating documents required' });
+    const transport = async (_, init) => { calls.push(JSON.parse(init.body)); return acceptedByFormspree(); };
+    const response = await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal(response.status, 201);
+    const result = await response.json();
+    const saved = store.sqlite.prepare('SELECT commercial_details FROM quote_enquiries WHERE reference = ?').get(result.reference);
+    for (const value of ['Guests only', '7 h–21 h', 'Existing heater model to follow', 'Facilities manager; approval in December', 'Operating documents required']) assert.ok(saved.commercial_details.includes(value));
+    assert.match(saved.commercial_details, language === 'fr' ? /Type d’établissement: Hôtel/ : /Facility type: Hotel/);
+    assert.ok(calls[0].message.includes(saved.commercial_details));
+    const retry = await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal((await retry.json()).reference, result.reference);
+    assert.equal(calls.length, 1);
+    const changed = await handleQuoteRequest(request({ ...data, commercialHours: '24 hours' }, { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal(changed.status, 409);
+  }
+});
+
+test('invalid commercial details fail before storage; hidden residential details are omitted', async t => {
+  const store = database(t);
+  for (const [overrides, field, error] of [
+    [{ commercialFacility: 'fake' }, 'commercialFacility', 'invalid'],
+    [{ commercialStage: '' }, 'commercialStage', 'required'],
+    [{ commercialEquipment: 'x'.repeat(401) }, 'commercialEquipment', 'too_long'],
+    [{ commercialBriefVersion: 2 }, 'commercialFacility', 'invalid'],
+  ]) {
+    const response = await submit(store, payload({ intendedUse: 'commercial', commercialBriefVersion: 1, commercialFacility: 'hotel', commercialStage: 'new', ...overrides }));
+    assert.equal(response.status, 422);
+    assert.equal((await response.json()).fields[field], error);
+    assert.equal(store.count(), 0);
+  }
+  const response = await submit(store, payload({ intendedUse: 'home', commercialBriefVersion: 1, commercialDetails: 'DO NOT SEND', commercialFacility: 'hotel', commercialHours: 'PRIVATE HIDDEN VALUE' }));
+  assert.equal(response.status, 201);
+  assert.equal(store.sqlite.prepare('SELECT commercial_details FROM quote_enquiries').get().commercial_details, '');
+});

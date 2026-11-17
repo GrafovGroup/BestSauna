@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { clearQuoteDraft, quoteFieldLimits, QUOTE_DRAFT_KEY, QUOTE_DRAFT_TTL, readQuoteDraft, saveQuoteDraft } from '../lib/quote-draft.ts';
+import { commercialFieldLimits } from '../lib/commercial-brief.ts';
 
 function memoryStorage() {
   const values = new Map();
@@ -10,6 +11,20 @@ const fields = { ...Object.fromEntries(Object.keys(quoteFieldLimits).map(key => 
 const attempt = { fingerprint: 'a'.repeat(64), key: '37f7566d-c741-4434-8ed9-1d80ebeb7af4' };
 const context = '["cottage","assembly","cottage","outdoor","unsure"]';
 const now = 10000000;
+
+test('commercial drafts survive language changes and legacy drafts retain their notes', () => {
+  const storage = memoryStorage();
+  const commercial = { ...fields, intendedUse: 'commercial', commercialFacility: 'hotel', commercialStage: 'replacement', commercialHours: '7 h à 21 h', commercialDetails: 'Anciennes notes conservées' };
+  saveQuoteDraft(storage, context, commercial, attempt, now);
+  assert.deepEqual(readQuoteDraft(storage, context, now + 1).fields, commercial);
+  const old = JSON.parse(storage.getItem(QUOTE_DRAFT_KEY));
+  for (const key of Object.keys(commercialFieldLimits)) delete old.fields[key];
+  storage.setItem(QUOTE_DRAFT_KEY, JSON.stringify(old));
+  const restored = readQuoteDraft(storage, context, now + 1);
+  assert.equal(restored.fields.commercialDetails, commercial.commercialDetails);
+  assert.equal(restored.fields.commercialFacility, '');
+  assert.equal(restored.fields.name, commercial.name);
+});
 
 test('a tab draft restores bilingual text and the retry identity, excluding consent and hidden data', () => {
   const storage = memoryStorage();

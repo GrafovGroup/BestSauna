@@ -15,6 +15,14 @@ Use “Your enquiry has been saved” / “Votre demande a été enregistrée”
 - API responses are not cacheable. Validation uses server-side allowlists and length limits; field error codes are `required`, `invalid` and `too_long` for the frontend to translate.
 - No attachments or marketing enrolment are collected in this release. Unexpected extra fields are not stored.
 
+## Commercial project qualification
+
+Commercial / hospitality enquiries show a separate bilingual brief: facility type, project stage, expected use, operating hours, existing equipment/plans, purchasing role/process and project requirements. Facility and stage are required choices with undecided options; remaining details are optional. The normal contact section identifies the project contact. No file upload, warranty approval, installation commitment or additional recipient is implied.
+
+New forms send `commercialBriefVersion: 1`. The server validates fixed choices, types and field limits, then formats the localized brief into the existing private `commercial_details` column. Notifications include the same saved text. No migration or backfill is needed. Already-open legacy forms without the version remain compatible with the existing notes field; existing records are unchanged. Hidden commercial fields are removed from residential/cottage submissions by the client and server.
+
+Drafts preserve the additional fields through language switching, and older drafts retain their existing commercial notes. The normal 30-minute expiry, consent, review step, idempotency and notification controls apply. Commercial-page and commercial-guide quotation links carry the intended use and source context.
+
 ## Duplicate handling and abuse controls
 
 The payload is normalized before hashing. A unique database constraint prevents duplicate idempotency keys. The same key and normalized payload return the original reference; a changed payload with the same key returns 409. Double-click protection in the browser complements this server protection.

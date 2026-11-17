@@ -1,3 +1,4 @@
+import { normalizeCommercialBrief } from "./commercial-brief.ts";
 /** Private quotation intake. Database acceptance and notification acceptance are separate. */
 export const MAX_QUOTE_BODY_BYTES = 16 * 1024;
 export const QUOTE_RATE_LIMIT = 5;
@@ -112,6 +113,18 @@ function validate(raw: unknown) {
     sourcePath: text("sourcePath", 240, true),
     privacyAccepted: input.privacyAccepted === true,
   };
+
+  // Preserve legacy requests from already-open forms. New forms explicitly opt in
+  // to server-validated structured intake; the existing private text column and
+  // notification formatter retain the complete localized brief.
+  if (input.commercialBriefVersion !== undefined && input.commercialBriefVersion !== 1) fields.commercialFacility = "invalid";
+  if (data.intendedUse === "commercial" && input.commercialBriefVersion === 1) {
+    const brief = normalizeCommercialBrief(input, data.language);
+    Object.assign(fields, brief.errors);
+    data.commercialDetails = brief.text;
+  } else if (data.intendedUse !== "commercial") {
+    data.commercialDetails = "";
+  }
 
   if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) fields.email = "invalid";
   if (data.phone && (!/^[+\d\s().xext#-]+$/i.test(data.phone) || data.phone.replace(/\D/g, "").length < 7)) fields.phone = "invalid";
