@@ -16,7 +16,7 @@ The website contains **40 English/French content routes**, including three buyin
 
 The original build brief is saved in [BestSauna_Codex_Master_Prompt.txt](BestSauna_Codex_Master_Prompt.txt), recovered from the owner’s ChatGPT Library.
 
-The GitHub repository is the source of record. The public WHC release is `6aa93203c4b5a0d3b695a8f1eb5334ccdcb7b5b1`. The retained Sites deployment is an earlier owner-private review copy; it was not made public during the WHC migration.
+The GitHub repository is the source of record. The public WHC release is `959a7fb472a690920589a45b37c6fd71812ce5b0`. The retained Sites deployment is an earlier owner-private review copy; it was not made public during the WHC migration.
 
 The default site origin remains the private review destination for safe development. WHC explicitly sets `PUBLIC_SITE_URL=https://bestsauna.ca`, `PUBLIC_INDEXABLE=true` and `QUOTE_EMAIL_ENABLED=true`. Google accepted the public sitemap with 40 discovered pages; Bing accepted it for processing. Submission does not establish indexing.
 

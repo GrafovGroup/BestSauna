@@ -2,7 +2,7 @@
 
 The owner selected WHC hosting on 2026-11-16. The existing owner-private Sites deployment remains a review copy. The public application uses Next.js on the existing WHC cPanel/CloudLinux Node runtime; it does not require a new hosting purchase.
 
-Public launch completed on 2026-11-16 (Toronto) at `https://bestsauna.ca`. Runtime source is commit `6aa93203c4b5a0d3b695a8f1eb5334ccdcb7b5b1`. The application directory is `/home/nvfglyl5/bestsauna-live`, public document root `/home/nvfglyl5/bestsauna.ca`, and private data/configuration directory `/home/nvfglyl5/.bestsauna`. Google reports the HTTPS sitemap successful with 40 discovered pages; Bing accepted it and was processing at handoff. See `VALIDATION.md` for exact evidence and limitations.
+Public launch completed on 2026-11-16 (Toronto) at `https://bestsauna.ca`. Runtime source is commit `959a7fb472a690920589a45b37c6fd71812ce5b0`. The application directory is `/home/nvfglyl5/bestsauna-live`, public document root `/home/nvfglyl5/bestsauna.ca`, and private data/configuration directory `/home/nvfglyl5/.bestsauna`. Google reports the HTTPS sitemap successful with 40 discovered pages; Bing accepted it and was processing at handoff. See `VALIDATION.md` for exact evidence and limitations.
 
 The document-root `.htaccess` retains cPanel's generated Passenger configuration and adds the following HTTPS redirect. Its ACME exception allows certificate renewal. The www HTTPS redirect is handled by the Node entry point.
 

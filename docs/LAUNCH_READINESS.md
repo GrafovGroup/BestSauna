@@ -29,7 +29,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |
 | Public launch | Completed on WHC at https://bestsauna.ca on 2026-11-16 (Toronto). HTTPS, 40 routes, 74 images and quote persistence verified. Google sitemap success: 40 discovered pages. Bing submission accepted and processing. |
 
-The owner selected and authorized migration onto existing WHC hosting. Release `6aa93203c4b5a0d3b695a8f1eb5334ccdcb7b5b1` is public; the Sites review copy remains private. Only the web A record changed, plus Google/Bing ownership records. Existing mail and nameserver records were preserved. See `WHC_HOSTING.md` and the dated `VALIDATION.md` record.
+The owner selected and authorized migration onto existing WHC hosting. Release `959a7fb472a690920589a45b37c6fd71812ce5b0` is public; the Sites review copy remains private. Only the web A record changed, plus Google/Bing ownership records. Existing mail and nameserver records were preserved. See `WHC_HOSTING.md` and the dated `VALIDATION.md` record.
 
 ## Owner/provider inputs still required
 
@@ -41,7 +41,7 @@ The owner selected and authorized migration onto existing WHC hosting. Release `
 | Installation coverage | A contractor-confirmed service map, actual scopes, qualifications, pricing, specialist trades and support responsibilities. Accepting a national enquiry does not establish national installation coverage. |
 | Commercial applications | Model-specific suitability and warranty approval for the proposed commercial or rental use. |
 | Telephone and mailbox | Verify `(833) 696-9996` routing. The owner verified `info@bestsauna.ca` and confirmed one recovered test notification; confirm monitored access and ordinary unfiltered delivery. |
-| Monitored quotations | Assign an intake operator and review schedule; verify authorized retrieval of a controlled saved enquiry. Formspree notifications are enabled for the verified info@bestsauna.ca address, and the owner confirmed receipt of a controlled notification after individual spam recovery. Verify automatic unfiltered delivery before public launch. Check Formspree Spam, quota and failed/uncertain notification records. |
+| Monitored quotations | Assign an intake operator and review schedule. Authenticated retrieval of a controlled saved enquiry through the new private CLI was verified on 2026-11-17; actual ongoing monitoring still needs an owner. Formspree notifications are enabled for the verified info@bestsauna.ca address, and the owner confirmed receipt of a controlled notification after individual spam recovery. Verify automatic unfiltered delivery before public launch. Check Formspree Spam, quota and failed/uncertain notification records. |
 | Seller and quotation terms | Confirm the legal seller, customer-facing company details, payment/change/cancellation terms, delivery boundaries, warranty allocation and other terms needed for actual orders. Grafov Group Inc. is intended, not verified here against legal records. |
 | Privacy and retention | Adopt a retention period and access/deletion procedure. Match the privacy notice to actual processors, storage and notifications. Implement deletion before promising automatic retention limits; do not claim Canadian-only data residency. |
 | Public access and domain | Completed for the requested WHC launch. Sites remains private. Public HTTPS and canonical redirects were verified. |
