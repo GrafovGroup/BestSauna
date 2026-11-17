@@ -20,7 +20,7 @@ The default site origin is the private review destination. Search indexing remai
 
 ## Architecture
 
-- **Application:** Vinext with React and Next-compatible routes, compiled for a Cloudflare Worker with static assets.
+- **Application:** React with Next-compatible routes. The WHC target uses Next.js and a Passenger entry point; the private review target retains Vinext/Cloudflare. See [WHC deployment](docs/WHC_HOSTING.md) for packaging and runtime configuration.
 - **Content:** one bilingual page and route map in `content/site.ts`; customer-facing pages under `app/[lang]/`.
 - **Service planning:** bilingual delivery/installation planner creates a requested-work brief; see [Service planner](docs/SERVICE_PLANNER.md).
 - **Quotations:** same-origin `POST /api/quotes`, with server validation and D1 storage.

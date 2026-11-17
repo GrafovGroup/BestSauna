@@ -1,6 +1,11 @@
-import { env } from "cloudflare:workers";
+import { quoteEnvironment } from "@/lib/runtime-environment";
 import { handleQuoteRequest } from "../../../lib/quote-service";
 
 export async function POST(request: Request) {
-  return handleQuoteRequest(request, { DB: env.DB, RATE_LIMIT_SECRET: env.RATE_LIMIT_SECRET, QUOTE_EMAIL_ENABLED: env.QUOTE_EMAIL_ENABLED });
+  try {
+    return await handleQuoteRequest(request, quoteEnvironment());
+  } catch {
+    // Database configuration errors must not disclose paths or contact details.
+    return Response.json({ ok: false, error: "unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
 }

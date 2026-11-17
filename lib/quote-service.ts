@@ -1,7 +1,7 @@
 /** Private quotation intake. Database acceptance and notification acceptance are separate. */
 export const MAX_QUOTE_BODY_BYTES = 16 * 1024;
 export const QUOTE_RATE_LIMIT = 5;
-export const PRIVACY_NOTICE_VERSION = "2026-11-16.3";
+export const PRIVACY_NOTICE_VERSION = "2026-11-16.4";
 export const FORMSPREE_ENDPOINT = "https://formspree.io/f/mljbjqwy";
 export const NOTIFICATION_TIMEOUT_MS = 8000;
 
@@ -28,6 +28,10 @@ export interface QuoteEnvironment {
   DB?: QuoteDatabase;
   RATE_LIMIT_SECRET?: string;
   QUOTE_EMAIL_ENABLED?: string;
+  /** Node HTTP socket context; null deliberately disables header fallbacks. */
+  CLIENT_IP?: string | null;
+  /** Public origin when a Node reverse proxy reconstructs an internal URL. */
+  SITE_ORIGIN?: string;
 }
 interface SavedKey { reference: string; payload_hash: string }
 type NotificationStatus = "not_requested" | "pending" | "sending" | "accepted" | "failed" | "unknown";
@@ -161,7 +165,11 @@ async function rateKey(ip: string, hour: number, secret: string) {
   return hex(await crypto.subtle.sign("HMAC", key, encoder.encode(`${hour}:${ip}`)));
 }
 
-function clientIp(request: Request) {
+function clientIp(request: Request, environment: QuoteEnvironment) {
+  if (environment.CLIENT_IP !== undefined) {
+    const address = environment.CLIENT_IP;
+    return address && address.length <= 64 && /^[a-f\d:.]+$/i.test(address) ? address : null;
+  }
   const trustedIp = request.headers.get("CF-Connecting-IP");
   if (trustedIp && trustedIp.length <= 64 && /^[a-f\d:.]+$/i.test(trustedIp)) return trustedIp;
   // A local-only fallback makes preview testing possible without trusting forwarded headers.
@@ -259,7 +267,8 @@ async function savedResponse(DB: QuoteDatabase, row: SavedKey, payloadHash: stri
 
 export async function handleQuoteRequest(request: Request, environment: QuoteEnvironment, now: () => number = Date.now, transport: NotificationTransport = fetch): Promise<Response> {
   if (request.method !== "POST") return error("method", 405, { Allow: "POST" });
-  if (request.headers.get("Origin") !== new URL(request.url).origin) return error("origin", 403);
+  const sourceOrigin = environment.SITE_ORIGIN || new URL(request.url).origin;
+  if (request.headers.get("Origin") !== sourceOrigin) return error("origin", 403);
   if (request.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== "application/json") return error("content_type", 415);
   const idempotencyKey = request.headers.get("Idempotency-Key")?.toLowerCase() ?? "";
   if (!/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/.test(idempotencyKey)) return error("idempotency", 400);
@@ -269,9 +278,8 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
   const validated = validate(parsed.value);
   if (Object.keys(validated.fields).length || !validated.data) return json({ ok: false, error: "validation", fields: validated.fields }, 422);
   const data = validated.data;
-  const sourceOrigin = new URL(request.url).origin;
   const { DB, RATE_LIMIT_SECRET } = environment;
-  const ip = clientIp(request);
+  const ip = clientIp(request, environment);
   if (!DB || !RATE_LIMIT_SECRET || RATE_LIMIT_SECRET.length < 32 || !ip) return error("unavailable", 503);
 
   try {

@@ -1,6 +1,7 @@
-import { env } from "cloudflare:workers";
+import { runtimeEnvironment } from "@/lib/runtime-environment";
 
 export function siteSettings() {
+  const env = runtimeEnvironment();
   const configured = env.PUBLIC_SITE_URL || "https://bestsauna.dimagrafov.chatgpt.site";
   const origin = new URL(configured).origin;
   return { origin, indexable: env.PUBLIC_INDEXABLE === "true" };

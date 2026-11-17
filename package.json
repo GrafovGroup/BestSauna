@@ -6,6 +6,9 @@
     "node": ">=22.13.0"
   },
   "scripts": {
+    "build:whc": "npm run catalogue:check && next build --webpack",
+    "start:whc": "node app.cjs",
+    "package:whc": "node scripts/package-whc.mjs",
     "install:ci": "node scripts/install-ci.mjs",
     "dev": "node scripts/run-framework.mjs dev",
     "build": "npm run catalogue:check && node scripts/run-framework.mjs build",

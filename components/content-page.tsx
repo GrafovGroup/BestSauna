@@ -12,6 +12,7 @@ import { SaunaComparison } from "./sauna-comparison";
 import { readComparison } from "@/lib/sauna-comparison";
 import { GuideArticle } from "./guide-article";
 import { pageBreadcrumbs } from "@/lib/page-seo";
+import { storageProvider } from "@/lib/runtime-environment";
 
 function Breadcrumbs({lang,page}:{lang:Lang;page:SitePage}) {
  const trail=pageBreadcrumbs(page,lang,pages);
@@ -19,7 +20,8 @@ function Breadcrumbs({lang,page}:{lang:Lang;page:SitePage}) {
 }
 
 export function ContentPage({page,lang,search,products=[]}:{page:SitePage;lang:Lang;search:Record<string,string|string[]|undefined>;products?:readonly PublicProduct[]}){
- const c=page.copy[lang];const fr=lang==="fr";
+ const source=page.copy[lang];const fr=lang==="fr";
+ const c=page.key==="privacy"?{...source,sections:source.sections.map(section=>({...section,text:section.text?.replace("Cloudflare",storageProvider())}))}:source;
  const allowedInterest=["outdoor","indoor","infrared","cottage","commercial","heaters","unsure"];
  const selection=page.kind==="quote"?readQuoteModels(search,products):{products:[],adjusted:false,direct:false};
  const plan=readServicePlan(search);

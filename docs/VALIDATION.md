@@ -2,6 +2,15 @@
 
 Verified on 2026-11-16. This is a quotation-led review release, not a confirmation of supplier approval or commercial launch readiness.
 
+## WHC migration verification — 2026-11-16 (Toronto)
+
+- Added a Next.js/Passenger runtime alongside the existing Worker build, private SQLite storage using the actual D1 migrations, transaction/checksum migration tracking and request-local client identity.
+- `npm test`: 62 tests passed. New tests cover persistence after restart, applied-migration integrity, forged forwarding headers, concurrent request context and configured public-origin validation behind a reverse proxy.
+- Typecheck, content/catalogue checks and `npm run build:whc` passed. Robots and sitemap are explicitly dynamic so release environment settings apply at runtime.
+- Local production HTTP audit: all 40 content routes returned 200 with one H1, expected canonical origin and private noindex; both privacy pages name WHC. Canonical root redirect and a saved quote/retry passed after correcting Next's internal-origin reconstruction.
+- Browser: English draft fields survived the switch to French; privacy acknowledgement was reset; review/send completed with local reference `BS-20261117-062A5F24B796`. Notifications were disabled; no email was sent.
+- WHC account inspected: Node 24.22.3 available. Created the separate bestsauna.ca document root and exported the existing authoritative DNS zone before changes. Hosting installation, HTTPS/DNS cutover and Google/Bing submissions remain pending at this checkpoint.
+
 ## Automated checks
 
 - `npm run typecheck`: TypeScript validation passed.

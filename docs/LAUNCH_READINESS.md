@@ -26,6 +26,8 @@ Verify the actual deployed version and access controls. Private access and searc
 | Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |
 | Public launch | Pending the owner/provider inputs and deployment checks below. |
 
+The owner selected migration onto existing WHC hosting on 2026-11-16. The Node/SQLite adapter and runtime package pass local verification. A dedicated BestSauna cPanel domain directory has been created; DNS cutover, hosted verification and search submissions must be recorded before marking public launch complete. See `WHC_HOSTING.md`.
+
 ## Owner/provider inputs still required
 
 | Area | Required evidence or decision before the corresponding public claim |
