@@ -2,7 +2,7 @@
 
 A bilingual Canadian sauna project and quotation website, using the approved **04 — Pure Wordmark** identity. The initial experience helps residential, cottage and commercial buyers compare options and request a project quotation.
 
-The website contains **40 English/French content routes**, including three buying/planning guides in both languages. Categories explain project options; they are not an inventory of verified products. A source-managed product catalogue foundation now supports approved bilingual model records, publication checks, category cards, detail pages and quote handoff; its production array remains empty pending supplier evidence. There is no checkout, fabricated pricing or claimed dealer authorization.
+The website contains **40 English/French content routes**, including three buying/planning guides in both languages. Categories explain project options; they are not an inventory of verified products. A source-managed product catalogue foundation now supports approved bilingual model records, publication checks, category cards, detail pages, two- or three-model comparison and quote handoff; its production array remains empty pending supplier evidence. There is no checkout, fabricated pricing or claimed dealer authorization.
 
 ## Project destinations
 
@@ -147,6 +147,7 @@ Read enquiries and notification outcomes through the site's **authenticated Site
 | Bilingual copy, equivalent routes and related links | `content/site.ts` |
 | Page rendering, navigation and forms | `app/` and the relevant components |
 | Product records and publication checks | `content/products.ts`, `lib/product-catalogue.ts` and [Catalogue authoring](docs/PRODUCT_CATALOGUE.md) |
+| Model comparison and shortlist handoff | `components/model-comparison.tsx` and `lib/model-comparison.ts` |
 | Product cards, detail pages and quote handoff | `components/product-catalogue.tsx`, `lib/product-seo.ts` and the shared route/form components |
 | Guide summaries and section navigation | `content/guide-summaries.ts` and `components/guide-article.tsx` |
 | Metadata, breadcrumbs, structured data and sitemap/robots generation | `lib/page-seo.ts` |

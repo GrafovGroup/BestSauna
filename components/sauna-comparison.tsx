@@ -1,3 +1,5 @@
+import type { PublicProduct } from "@/lib/product-catalogue";
+import { modelSlots } from "@/lib/model-comparison";
 import { pagePath, type Lang } from "@/content/site";
 import { comparisonApproaches, comparisonPairs, comparisonQuoteQuery, projectUses, serviceScopes, type ComparisonState, type SaunaApproach } from "@/lib/sauna-comparison";
 
@@ -51,7 +53,7 @@ const approaches: Record<Lang, Record<SaunaApproach, ApproachCopy>> = {
   },
 };
 
-export function SaunaComparison({ lang, state }: { lang: Lang; state: ComparisonState }) {
+export function SaunaComparison({ lang, state, selectedModels = [] }: { lang: Lang; state: ComparisonState; selectedModels?: readonly PublicProduct[] }) {
   const fr = lang === "fr";
   const text = (en: string, french: string) => fr ? french : en;
   const selected = comparisonApproaches(state);
@@ -77,6 +79,7 @@ export function SaunaComparison({ lang, state }: { lang: Lang; state: Comparison
   return <section className="container comparison-section" aria-labelledby="compare-heading">
     <div className="comparison-intro"><p className="eyebrow">{text("YOUR SPACE. YOUR PRIORITIES.", "VOTRE ESPACE. VOS PRIORITÉS.")}</p><h2 id="compare-heading">{text("Find your starting point.", "Trouvez votre point de départ.")}</h2><p>{text("Choose the approaches you want to compare, then update the comparison. Take a preferred option into your quote request when you’re ready.", "Choisissez les approches à comparer, puis actualisez la comparaison. Transférez votre option préférée dans une demande de soumission lorsque vous serez prêt.")}</p></div>
     <form action={path + "#comparison-results"} method="GET" className="comparison-controls">
+      {selectedModels.map((product,i)=><input type="hidden" name={modelSlots[i]} value={product.id} key={product.id}/>)}
       <label htmlFor="compare-pair">{text("COMPARE", "COMPARER")}<select id="compare-pair" name="compare" defaultValue={state.compare}>{comparisonPairs.map((id, i) => <option key={id} value={id}>{pairLabels[i]}</option>)}</select></label>
       <label htmlFor="compare-use">{text("MY PROJECT", "MON PROJET")}<select id="compare-use" name="use" defaultValue={state.use}>{projectUses.map((id, i) => <option key={id} value={id}>{useLabels[i]}</option>)}</select></label>
       <label htmlFor="compare-service">{text("THE HELP I NEED", "L’ACCOMPAGNEMENT SOUHAITÉ")}<select id="compare-service" name="service" defaultValue={state.service}>{serviceScopes.map((id, i) => <option key={id} value={id}>{serviceLabels[i]}</option>)}</select></label>

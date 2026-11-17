@@ -18,7 +18,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | --- | --- |
 | Main English/French journeys | 20 paired pages, navigation, brand assets, category/service copy and quotation entry points implemented. |
 | Quotation intake | Validation, review-before-send, temporary drafts, D1 persistence and tracked Formspree notifications implemented. Inbox operations remain a launch dependency below. |
-| Sauna comparison | Two- or three-approach comparison, project/service context, mobile cards and bilingual quote handoff implemented. |
+| Sauna comparison | Two- or three-approach comparison plus approved-model comparison, project/service context, responsive layouts and bilingual shortlist quote handoff implemented. Model comparison appears when two eligible catalogue records exist. |
 | Buying guides and search foundations | Bilingual summaries, section navigation, article/page/collection structured data, matching breadcrumbs and reciprocal language sitemap entries implemented. Indexing remains disabled for private review. |
 | Real product catalogue | Source-managed bilingual records, draft/published/archived checks, catalogue cards, detail pages, metadata and quote handoff implemented. No real records are published; supplier/model evidence below is still required. See `PRODUCT_CATALOGUE.md`. |
 | Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |

@@ -1,6 +1,6 @@
 # Product catalogue foundation
 
-The source-managed catalogue is ready for actual, approved model/configuration records. It currently contains **no real products**. The ten sourcing archetypes in the planning brief remain research inputs. There is no product admin dashboard, checkout, inventory feed, live pricing or product-to-product comparison in this phase; the existing comparison continues to explain sauna approaches.
+The source-managed catalogue is ready for actual, approved model/configuration records. It currently contains **no real products**. The ten sourcing archetypes in the planning brief remain research inputs. A two- or three-model comparison is implemented and becomes visible when at least two eligible models exist. There is no product admin dashboard, checkout, inventory feed or live pricing in this phase; the approach comparison remains available for category planning.
 
 ## Files and responsibilities
 
@@ -11,6 +11,7 @@ The source-managed catalogue is ready for actual, approved model/configuration r
 | `lib/product-catalogue.ts` | Runtime schema, approval checks, public projection, routes, category membership and quote context. |
 | `lib/published-catalogue.ts` | Single application entry point; rechecks publication eligibility per request. |
 | `components/product-catalogue.tsx` | Bilingual catalogue cards and model detail layout. |
+| `lib/model-comparison.ts`, `components/model-comparison.tsx` | Validated model selection, side-by-side/mobile comparison and shortlist quote handoff. |
 | `scripts/check-catalogue.mjs` | Publication report and build gate, including local image existence. |
 
 ## Prepare a record
@@ -59,6 +60,20 @@ After validation, review the real imagery, translations and quote handoff at des
 - Model quote buttons retain the stable ID, category, placement, heat and localized source path. The server resolves the ID from eligible records and prefills the editable message with manufacturer, model and configuration. Arbitrary or unpublished query IDs cannot expose draft content.
 - Existing form review, temporary tab drafts, persistence and email formatting carry that message. The selected model is an enquiry preference, not a stock reservation, accepted order or immutable order line. No database migration or notification change is required.
 - Model IDs separate draft contexts, while EN/FR switches retain the same context and user edits. Changing to a different model does not import the previous model’s draft.
+
+## Model comparison
+
+When at least two eligible records exist, the comparison page gains model selectors and model cards/detail pages gain a comparison link. Visitors explicitly choose two or three different configurations. No models are selected or ranked by default. Native GET controls work without client JavaScript and store the choices in `model1`, `model2`, `model3`, alongside project use and requested service. The category approach form preserves applied model choices when changing its project context.
+
+A desktop table compares manufacturer/model, configuration, placement, all seven specification fields, inclusions/exclusions, delivery, availability, timing, warranty, permitted use and order terms. Mobile readers open individual model cards using native accessible disclosure controls. All values come from the same public records as detail pages. No numeric capacity, feature score, stock or price is inferred from text.
+
+Duplicate, malformed, unavailable or unpublished IDs are removed with a localized notice. At least two remaining models are required to show the comparison. Remove and clear controls preserve project/service context; language links retain only eligible model IDs and equivalent page paths. Fewer than two eligible catalogue records hides the model-comparison interface and entry links.
+
+The shortlist CTA and the page’s header/bottom quote CTAs retain the selected models and requested project scope. Mixed categories, environments or heat types prefill `unsure`; matching values may prefill their common choice. A use not listed in every selected record produces a visible notice identifying the affected models, without asserting their suitability. The existing category-specific planning CTAs still describe the approach the visitor explicitly chose.
+
+The quote page resolves all IDs again against current published records. The editable message includes exact manufacturer/model, configuration and stable IDs for up to three models within the existing 2,000-character limit. Model selection is not an inventory reservation or order. A changed shortlist gets a distinct temporary draft context; changing display order or language preserves the same shortlist draft. A direct `product` link retains its single-model meaning even if unrelated comparison parameters are also present. Unknown IDs cannot retrieve hidden record details.
+
+Comparison query variants keep the comparison page’s canonical path and do not add sitemap URLs or Product/Offer markup. No new database fields or notification settings are required. The existing notification formatter carries the customer’s message.
 
 ## Tests and isolated visual QA
 

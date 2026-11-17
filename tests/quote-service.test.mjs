@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { handleQuoteRequest, MAX_QUOTE_BODY_BYTES, NOTIFICATION_TIMEOUT_MS } from "../lib/quote-service.ts";
 import { publishedProducts, productQuoteMessage } from "../lib/product-catalogue.ts";
 import { catalogueFixture } from "./fixtures/catalogue.mjs";
+import { modelQuoteMessage } from "../lib/model-comparison.ts";
 
 const ORIGIN = "https://bestsauna.ca";
 const SECRET = "test-only-rate-limit-secret-with-more-than-32-characters";
@@ -213,6 +214,19 @@ test("model context is saved and included in the mocked notification without new
   assert.equal(saved.message, message); assert.equal(saved.source_path, product.paths.fr);
   assert.ok(notification.message.includes(message));
   assert.ok(notification.message.includes(product.paths.fr));
+});
+
+test("a three-model comparison is saved and sent through the mocked notification as one enquiry", async t => {
+  const store = database(t);
+  const products = publishedProducts(["internal-qa-a", "internal-qa-b", "internal-qa-c"].map(catalogueFixture), "2026-11-16");
+  const message = modelQuoteMessage(products, "fr");
+  const data = payload({ message, sourcePath: "/fr/comparer-les-saunas/", heat: "unsure", interest: "unsure", placement: "unsure" });
+  const sent = [];
+  const transport = async (_url, init) => { sent.push(JSON.parse(init.body)); return acceptedByFormspree(); };
+  const response = await handleQuoteRequest(request(data), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(response.status, 201); assert.equal(store.count(), 1); assert.equal(sent.length, 1);
+  assert.equal(store.sqlite.prepare("SELECT message FROM quote_enquiries").get().message, message);
+  for (const product of products) assert.ok(sent[0].message.includes(product.id));
 });
 
 test("Formspree receives one committed, readable quotation with reply-to and reference", async t => {

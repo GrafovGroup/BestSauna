@@ -28,7 +28,7 @@ export default async function Page({params,searchParams}:Props){
  if(product){
    const other:Lang=lang==="fr"?"en":"fr";const quoteHref=`${pagePath("quote",lang)}?${productQuoteQuery(product,lang)}`;
    const structured=productStructuredData(product,lang,origin,pages);
-   return <><SiteHeader lang={lang} pageKey="saunas" counterpartHref={product.paths[other]} quoteHref={quoteHref}/><main id="main-content"><ProductDetail product={product} lang={lang}/></main><QuoteBand lang={lang} pageKey="saunas" quoteHref={quoteHref}/><SiteFooter lang={lang} pageKey="saunas" counterpartHref={product.paths[other]}/><script type="application/ld+json" dangerouslySetInnerHTML={{__html:serializeStructuredData(structured)}}/></>;
+   return <><SiteHeader lang={lang} pageKey="saunas" counterpartHref={product.paths[other]} quoteHref={quoteHref}/><main id="main-content"><ProductDetail product={product} lang={lang} canCompare={products.length>=2}/></main><QuoteBand lang={lang} pageKey="saunas" quoteHref={quoteHref}/><SiteFooter lang={lang} pageKey="saunas" counterpartHref={product.paths[other]}/><script type="application/ld+json" dangerouslySetInnerHTML={{__html:serializeStructuredData(structured)}}/></>;
  }
  if(!page)notFound();
  const structured=pageStructuredData(page,lang,origin,pages,guideSummaries[page.key]?.[lang]);

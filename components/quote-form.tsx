@@ -5,10 +5,10 @@ import type { FormEvent } from "react";
 import type { Lang } from "@/content/site";
 import { clearQuoteDraft, QUOTE_DRAFT_TTL, readQuoteDraft, saveQuoteDraft, type QuoteAttempt, type QuoteFields } from "@/lib/quote-draft";
 
-type Props = { lang: Lang; initialProductId?: string; initialMessage?: string; initialInterest?: string; initialService?: string; initialUse?: string; initialPlacement?: string; initialHeat?: string; sourcePath: string; privacyPath: string };
+type Props = { lang: Lang; initialProductId?: string; initialMessage?: string; selectionAdjusted?: boolean; initialInterest?: string; initialService?: string; initialUse?: string; initialPlacement?: string; initialHeat?: string; sourcePath: string; privacyPath: string };
 type Field = { key: string; title: string; options?: [string, string][]; required?: boolean; type?: string; autoComplete?: string; maxLength?: number; placeholder?: string; multiline?: boolean };
 
-export function QuoteForm({ lang, initialInterest = "", initialService = "", initialUse = "", initialPlacement = "", initialHeat = "", initialProductId = "", initialMessage = "", sourcePath, privacyPath }: Props) {
+export function QuoteForm({ lang, initialInterest = "", initialService = "", initialUse = "", initialPlacement = "", initialHeat = "", initialProductId = "", initialMessage = "", selectionAdjusted = false, sourcePath, privacyPath }: Props) {
   const fr = lang === "fr";
   const label = (en: string, french: string) => fr ? french : en;
   const initialFields: QuoteFields = {
@@ -198,6 +198,7 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
 
   return <form className="quote-form" onSubmit={submit} noValidate aria-busy={status === "saving"}>
     <ol className="quote-progress" aria-label={label("Request progress", "Étapes de la demande")}><li aria-current={!reviewing ? "step" : undefined}>01 {label("YOUR DETAILS", "VOS RENSEIGNEMENTS")}</li><li aria-current={reviewing ? "step" : undefined}>02 {label("REVIEW & SEND", "VÉRIFIER ET ENVOYER")}</li></ol>
+    {selectionAdjusted && <p className="model-selection-notice" role="status">{label("Some selected models are no longer available or were repeated. Review the models in your project message before sending.", "Certains modèles sélectionnés ne sont plus disponibles ou étaient répétés. Vérifiez les modèles dans votre message avant l’envoi.")}</p>}
     <div className="draft-notice"><p>{draftState === "unavailable" ? label("Draft saving is unavailable in this browser. Keep this page open until you send your request.", "L’enregistrement du brouillon n’est pas disponible dans ce navigateur. Gardez cette page ouverte jusqu’à l’envoi.") : draftState === "expired" ? label("Your saved draft has expired. Your details remain on this page; edit a field to save a new draft.", "Votre brouillon enregistré a expiré. Vos renseignements restent sur cette page; modifiez un champ pour créer un nouveau brouillon.") : label("Your draft stays in this browser tab for 30 minutes after your last edit, including when you switch languages. It is cleared after a successful submission.", "Votre brouillon reste dans cet onglet pendant 30 minutes après votre dernière modification, même si vous changez de langue. Il est effacé après un envoi réussi.")}</p><button className="draft-clear" type="button" disabled={status === "saving"} onClick={discard}>{label("CLEAR DRAFT", "EFFACER LE BROUILLON")}</button></div>
     {Object.keys(errors).length > 0 && <div className="form-alert error-summary" ref={errorSummary} tabIndex={-1} role="alert"><strong>{label("Please check these details", "Veuillez vérifier ces renseignements")}</strong><ul>{Object.entries(errors).map(([key, error]) => <li key={key}><a href={`#${key}`}>{allFields.find(field => field.key === key)?.title || label("Privacy notice", "Avis de confidentialité")}: {error}</a></li>)}</ul></div>}
     <div hidden={reviewing}>
