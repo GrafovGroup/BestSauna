@@ -73,8 +73,8 @@ export const pages: SitePage[] = [
         eyebrow: "EXPLORE SAUNAS",
         heading: "Start with the way you want to use your space.",
         intro: "The right starting point is your project: where the sauna will go, who will use it and how much of the work you want coordinated.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Timber seating and interior details in a sauna setting",
+        image: "/images/editorial-saunas.webp",
+        imageAlt: "Timber samples beside an open sauna doorway.",
         sections: [
           { title: "Three useful starting points", items: [
             { title: "Outdoors", text: "Explore cabin, cube and barrel formats for a backyard or cottage. Consider the complete footprint, access route and the work required at the proposed location." },
@@ -96,8 +96,8 @@ export const pages: SitePage[] = [
         eyebrow: "EXPLORER LES SAUNAS",
         heading: "Commencez par l’usage que vous souhaitez faire de votre espace.",
         intro: "Votre projet guide le choix : l’emplacement du sauna, les personnes qui l’utiliseront et les travaux que vous souhaitez faire coordonner.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Banquettes en bois et détails d’un aménagement intérieur de sauna",
+        image: "/images/editorial-saunas.webp",
+        imageAlt: "Échantillons de bois près d’une porte de sauna ouverte.",
         sections: [
           { title: "Trois points de départ utiles", items: [
             { title: "À l’extérieur", text: "Explorez les formats cabine, cube et tonneau pour la cour ou le chalet. Pensez à l’encombrement total, au trajet d’accès et aux travaux à prévoir à l’emplacement choisi." },
@@ -369,8 +369,8 @@ export const pages: SitePage[] = [
         eyebrow: "DELIVERY & INSTALLATION",
         heading: "Choose the help your project needs.",
         intro: "Equipment, delivery and installation are different parts of a sauna project. Choose a starting scope, then confirm the details for the product and your location.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Sauna interior showing timber construction and bench details",
+        image: "/images/editorial-installation.webp",
+        imageAlt: "Cedar components and simple measuring tools beside a prepared garden base.",
         sections: [
           { title: "Three ways to scope the work", items: [
             { title: "Supply & delivery", text: "The specified equipment package and agreed delivery service. The quotation identifies the destination, unloading arrangements, package contents and documentation." },
@@ -392,8 +392,8 @@ export const pages: SitePage[] = [
         eyebrow: "LIVRAISON ET INSTALLATION",
         heading: "Choisissez l’aide nécessaire à votre projet.",
         intro: "L’équipement, la livraison et l’installation sont des étapes distinctes. Choisissez une portée de départ, puis confirmez les détails selon le produit et l’emplacement.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Intérieur de sauna montrant la construction en bois et les banquettes",
+        image: "/images/editorial-installation.webp",
+        imageAlt: "Éléments en cèdre et outils de mesure près d’une base de jardin préparée.",
         sections: [
           { title: "Trois façons de définir les travaux", items: [
             { title: "Fourniture et livraison", text: "L’équipement précisé et le service de livraison convenu. La soumission indique la destination, le déchargement, le contenu de l’ensemble et la documentation." },
@@ -422,8 +422,8 @@ export const pages: SitePage[] = [
         eyebrow: "COMPARE YOUR OPTIONS",
         heading: "Compare the complete project.",
         intro: "An attractive photograph or starting price cannot tell you everything. Compare the equipment, the space and the work required together.",
-        image: "/images/outdoor.webp",
-        imageAlt: "Outdoor sauna setting used to consider layout and placement",
+        image: "/images/editorial-compare.webp",
+        imageAlt: "Two sauna concept models and material samples on a planning table.",
         sections: [
           { title: "Choose the questions before the model", items: [
             { title: "Indoor or outdoor?", text: "Start with the proposed location and the exact product’s intended environment. Include access, preparation and the relationship to the surrounding space." },
@@ -445,8 +445,8 @@ export const pages: SitePage[] = [
         eyebrow: "COMPARER LES OPTIONS",
         heading: "Comparez le projet complet.",
         intro: "Une belle photo ou un prix de départ ne dit pas tout. Comparez ensemble l’équipement, l’espace et les travaux nécessaires.",
-        image: "/images/outdoor.webp",
-        imageAlt: "Aménagement de sauna extérieur pour réfléchir à la disposition et à l’emplacement",
+        image: "/images/editorial-compare.webp",
+        imageAlt: "Deux maquettes de sauna et des échantillons sur une table de planification.",
         sections: [
           { title: "Posez les questions avant de choisir le modèle", items: [
             { title: "Intérieur ou extérieur?", text: "Partez de l’emplacement envisagé et de l’environnement prévu pour le produit exact. Tenez compte de l’accès, de la préparation et de l’espace environnant." },
@@ -526,8 +526,8 @@ export const pages: SitePage[] = [
         eyebrow: "PLANNING GUIDES",
         heading: "Get the important details into the plan.",
         intro: "Use these guides to define the project before choosing a final configuration. Each focuses on a decision that affects the quotation and the work involved.",
-        image: "/images/cottage.webp",
-        imageAlt: "Sauna setting beside a cottage in a natural landscape",
+        image: "/images/editorial-guides.webp",
+        imageAlt: "Notebook and cedar sample in a quiet sauna planning corner.",
         sections: [
           { title: "Start with the question in front of you", items: [
             { title: "What belongs in the budget?", text: "Separate the sauna package from freight, handling, site preparation and installation. Learn what to ask before comparing quotation totals." },
@@ -545,8 +545,8 @@ export const pages: SitePage[] = [
         eyebrow: "GUIDES DE PLANIFICATION",
         heading: "Intégrez les détails importants à votre projet.",
         intro: "Utilisez ces guides pour définir les besoins avant de retenir une configuration. Chacun porte sur une décision qui influence la soumission et les travaux à prévoir.",
-        image: "/images/cottage.webp",
-        imageAlt: "Aménagement de sauna près d’un chalet dans un paysage naturel",
+        image: "/images/editorial-guides.webp",
+        imageAlt: "Carnet et échantillon de cèdre dans un espace calme de planification.",
         sections: [
           { title: "Commencez par votre question actuelle", items: [
             { title: "Que faut-il inclure dans le budget?", text: "Distinguez l’ensemble de sauna, le transport, la manutention, la préparation et l’installation. Repérez les questions à poser avant de comparer les totaux." },
@@ -571,8 +571,8 @@ export const pages: SitePage[] = [
         eyebrow: "CANADIAN PROJECT ENQUIRIES",
         heading: "Start with your location.",
         intro: "Share your city and postal code. Supply options, delivery arrangements and installation services are confirmed for the equipment and the actual destination.",
-        image: "/images/cottage.webp",
-        imageAlt: "Sauna project setting in a Canadian-style woodland landscape",
+        image: "/images/editorial-coverage.webp",
+        imageAlt: "Sauna concept in a forest clearing with a broad gravel approach.",
         sections: [
           { title: "Enquiries across Canada", text: "You can submit a project in any province or territory: British Columbia, Alberta, Saskatchewan, Manitoba, Ontario, Québec, New Brunswick, Nova Scotia, Prince Edward Island, Newfoundland and Labrador, Yukon, the Northwest Territories or Nunavut. Your address helps determine which options can be assessed." },
           { title: "Delivery and installation are separate", text: "A product delivery arrangement does not automatically include a local assembly crew or specialist contractor. Each part of the service needs to be confirmed. The quotation should identify the delivery point, onward handling and any installation work agreed for that location." },
@@ -590,8 +590,8 @@ export const pages: SitePage[] = [
         eyebrow: "PROJETS AU CANADA",
         heading: "Commençons par votre emplacement.",
         intro: "Indiquez votre ville et votre code postal. Les options de fourniture, la livraison et les services d’installation sont confirmés selon l’équipement et la destination.",
-        image: "/images/cottage.webp",
-        imageAlt: "Aménagement de sauna dans un paysage boisé d’inspiration canadienne",
+        image: "/images/editorial-coverage.webp",
+        imageAlt: "Concept de sauna dans une clairière avec un large accès en gravier.",
         sections: [
           { title: "Des demandes de partout au Canada", text: "Vous pouvez soumettre un projet dans une province ou un territoire : Colombie-Britannique, Alberta, Saskatchewan, Manitoba, Ontario, Québec, Nouveau-Brunswick, Nouvelle-Écosse, Île-du-Prince-Édouard, Terre-Neuve-et-Labrador, Yukon, Territoires du Nord-Ouest ou Nunavut. L’adresse permet d’évaluer les options pertinentes." },
           { title: "Livraison et installation sont distinctes", text: "Une livraison de produit ne comprend pas automatiquement une équipe locale d’assemblage ou un entrepreneur spécialisé. Chaque service doit être confirmé. La soumission précise le point de livraison, la manutention supplémentaire et les travaux convenus à cet endroit." },
@@ -616,8 +616,8 @@ export const pages: SitePage[] = [
         eyebrow: "SUPPORT",
         heading: "Keep the next step clear.",
         intro: "Whether your question concerns a project enquiry, a delivery or equipment documentation, a few specific details help identify the right next step.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Sauna bench and interior construction details",
+        image: "/images/editorial-support.webp",
+        imageAlt: "Brush, linen and wooden accessories on a tidy sauna shelf.",
         sections: [
           { title: "Include the information that identifies the request", bullets: ["Your name and the email used for the enquiry or order.", "The enquiry reference or order details, if available.", "The product manufacturer, model and relevant identification details.", "A short description of the question and useful photos, if requested.", "The property location when the question involves delivery or site work."] },
           { title: "Separate product questions from project work", text: "A product warranty enquiry, an assembly issue and a request for additional work may have different responsibilities. Describe what happened and which part of the project is involved. The applicable equipment documents and agreed work scope provide the starting point." },
@@ -635,8 +635,8 @@ export const pages: SitePage[] = [
         eyebrow: "ASSISTANCE",
         heading: "Clarifiez la prochaine étape.",
         intro: "Pour une question sur un projet, une livraison ou la documentation d’un équipement, quelques renseignements précis aident à déterminer la suite.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Détails d’une banquette et de la construction intérieure d’un sauna",
+        image: "/images/editorial-support.webp",
+        imageAlt: "Brosse, linge et accessoires en bois sur une étagère de sauna.",
         sections: [
           { title: "Ajoutez les renseignements qui identifient la demande", bullets: ["Votre nom et le courriel utilisé pour la demande ou la commande.", "La référence de demande ou les détails de commande disponibles.", "Le fabricant, le modèle et les renseignements d’identification pertinents.", "Une brève description de la question et des photos utiles, si elles sont demandées.", "L’emplacement de la propriété pour les questions de livraison ou de travaux."] },
           { title: "Distinguez le produit des travaux", text: "Une demande de garantie, un problème d’assemblage et des travaux supplémentaires peuvent relever de responsabilités différentes. Décrivez la situation et la partie du projet concernée. La documentation de l’équipement et la portée convenue servent de point de départ." },
@@ -661,8 +661,8 @@ export const pages: SitePage[] = [
         eyebrow: "START YOUR PROJECT",
         heading: "Tell us what you have in mind.",
         intro: "Share the space, the sauna you are considering and the help you need. You can start an enquiry even if you have not chosen a model.",
-        image: "/images/outdoor.webp",
-        imageAlt: "Outdoor sauna setting for a residential project",
+        image: "/images/editorial-quote.webp",
+        imageAlt: "Notebook and wood samples beside a window overlooking a sauna concept.",
         sections: [
           { title: "A useful first brief", text: "Include your city and postal code, whether the sauna is for a home, cottage or commercial property, and whether it will be indoors or outdoors. Tell us the service scope you prefer and any timing that matters to the project." },
           { title: "Not sure yet? That is a valid starting point.", text: "Explain the available space and what you want help deciding. You can indicate a seating preference, design priority or budget without selecting a manufacturer. Mark unknown details as undecided rather than guessing.", bullets: ["Describe the location and intended use.", "Choose supply, assembly or a managed project enquiry.", "Mention known access restrictions or existing site work.", "Provide contact details so the project can be discussed."] },
@@ -677,8 +677,8 @@ export const pages: SitePage[] = [
         eyebrow: "COMMENCER VOTRE PROJET",
         heading: "Parlez-nous de votre projet.",
         intro: "Décrivez l’espace, le type de sauna et l’accompagnement souhaité. Vous pouvez présenter une demande même sans avoir choisi de modèle.",
-        image: "/images/outdoor.webp",
-        imageAlt: "Aménagement de sauna extérieur pour un projet résidentiel",
+        image: "/images/editorial-quote.webp",
+        imageAlt: "Carnet et échantillons de bois près d’une fenêtre donnant sur un concept de sauna.",
         sections: [
           { title: "Un premier portrait utile", text: "Indiquez la ville et le code postal, l’usage résidentiel, au chalet ou commercial, ainsi que l’emplacement intérieur ou extérieur. Précisez l’accompagnement souhaité et les dates importantes pour le projet." },
           { title: "Vous hésitez encore? C’est un bon point de départ.", text: "Décrivez l’espace disponible et les choix pour lesquels vous souhaitez de l’aide. Vous pouvez préciser les places assises, le style ou le budget sans choisir de fabricant. Indiquez les éléments à déterminer plutôt que de les deviner.", bullets: ["Décrivez l’emplacement et l’usage prévu.", "Choisissez une demande de fourniture, d’assemblage ou de projet coordonné.", "Mentionnez les contraintes d’accès et les travaux existants.", "Ajoutez vos coordonnées pour permettre un échange sur le projet."] },
@@ -700,8 +700,8 @@ export const pages: SitePage[] = [
         eyebrow: "ABOUT BESTSAUNA.CA",
         heading: "A clearer way to plan your sauna.",
         intro: "BestSauna.ca brings the equipment decision and the practical project questions into the same conversation, for homes, cottages and commercial spaces.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Natural timber and carefully arranged sauna seating",
+        image: "/images/editorial-about.webp",
+        imageAlt: "Close view of smooth cedar bench joinery and timber grain.",
         sections: [
           { title: "Begin with the right questions", text: "Where will the sauna go? How will it reach that position? What belongs in the equipment package, and which work do you want help coordinating? Those answers are more useful than a long list of models with unclear inclusions." },
           { title: "Keep the scope understandable", text: "The approach is to separate supply, delivery, assembly and specialist installation so the proposed work is easy to review. Product suitability, location and the required partners shape the final quotation. A service description should tell you what it includes and what still needs arranging." },
@@ -716,8 +716,8 @@ export const pages: SitePage[] = [
         eyebrow: "À PROPOS DE BESTSAUNA.CA",
         heading: "Une façon plus claire de préparer votre sauna.",
         intro: "BestSauna.ca réunit le choix de l’équipement et les questions pratiques du projet dans une même démarche, pour la maison, le chalet et les espaces commerciaux.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Bois naturel et banquettes soigneusement disposées dans un sauna",
+        image: "/images/editorial-about.webp",
+        imageAlt: "Gros plan sur les assemblages d’une banquette en cèdre et le grain du bois.",
         sections: [
           { title: "Commencez par les bonnes questions", text: "Où ira le sauna? Comment atteindra-t-il cet endroit? Que comprend l’équipement, et quels travaux souhaitez-vous faire coordonner? Ces réponses sont plus utiles qu’une longue liste de modèles aux inclusions imprécises." },
           { title: "Gardez une portée compréhensible", text: "La démarche distingue la fourniture, la livraison, l’assemblage et l’installation spécialisée pour faciliter l’examen de la proposition. Le produit, l’emplacement et les partenaires nécessaires déterminent la soumission finale. Chaque service doit préciser ses inclusions et les éléments qui restent à organiser." },
@@ -739,8 +739,8 @@ export const pages: SitePage[] = [
         eyebrow: "PRIVACY",
         heading: "Your project information.",
         intro: "This notice explains how information submitted through the BestSauna.ca project enquiry form is handled. Send only the details needed to describe and discuss your project.",
-        image: "",
-        imageAlt: "",
+        image: "/images/editorial-privacy.webp",
+        imageAlt: "Frosted glass and a cedar frame in soft natural light.",
         sections: [
           { title: "Information you provide", text: "An enquiry can include your name, email, telephone number, city or postal code, preferred contact method and project details. Your choices may describe the intended use, sauna type, service needs and timing. Do not include payment-card details or sensitive personal information in the message." },
           { title: "A temporary draft in your browser", text: "While you complete the form, a draft is kept in this browser tab so you can switch between English and French or reload the page without retyping your details. It expires 30 minutes after your last edit or send attempt, and is removed after a successful submission or when you select Clear draft. Expired drafts are removed when the form is open or next accessed. The draft is not sent to BestSauna.ca until you submit the request. Your privacy acknowledgement is not restored; you must acknowledge the notice again after returning to the form. Browser settings may prevent draft saving." },
@@ -756,8 +756,8 @@ export const pages: SitePage[] = [
         eyebrow: "CONFIDENTIALITÉ",
         heading: "Les renseignements de votre projet.",
         intro: "Cet avis explique le traitement des renseignements transmis dans le formulaire de projet de BestSauna.ca. Envoyez seulement les détails nécessaires pour décrire votre projet et en discuter.",
-        image: "",
-        imageAlt: "",
+        image: "/images/editorial-privacy.webp",
+        imageAlt: "Verre dépoli et cadre en cèdre dans une douce lumière naturelle.",
         sections: [
           { title: "Les renseignements transmis", text: "Une demande peut comprendre votre nom, votre courriel, votre téléphone, votre ville ou code postal, le moyen de communication souhaité et les détails du projet. Vos choix peuvent préciser l’usage, le type de sauna, les services et l’échéancier. N’ajoutez pas de données de carte de paiement ou de renseignements personnels sensibles." },
           { title: "Un brouillon temporaire dans votre navigateur", text: "Pendant que vous remplissez le formulaire, un brouillon est conservé dans cet onglet pour permettre le changement de langue ou le rechargement de la page sans tout ressaisir. Il expire 30 minutes après votre dernière modification ou tentative d’envoi, et est supprimé après un envoi réussi ou lorsque vous choisissez Effacer le brouillon. Les brouillons expirés sont supprimés lorsque le formulaire est ouvert ou lors du prochain accès. Le brouillon n’est transmis à BestSauna.ca qu’à l’envoi de la demande. Votre prise de connaissance de l’avis n’est pas rétablie : vous devez la confirmer à nouveau au retour. Les paramètres du navigateur peuvent empêcher l’enregistrement du brouillon." },
@@ -780,8 +780,8 @@ export const pages: SitePage[] = [
         eyebrow: "WEBSITE & ENQUIRY TERMS",
         heading: "From an enquiry to an agreed scope.",
         intro: "The website helps you explore sauna options and prepare a project request. A submitted enquiry is the start of a discussion, not an equipment order or installation agreement.",
-        image: "",
-        imageAlt: "",
+        image: "/images/editorial-terms.webp",
+        imageAlt: "Plain document folder, pencil and cedar sample on a desk.",
         sections: [
           { title: "Planning information", text: "Category descriptions, guides and setting images help explain project options. They do not establish the availability, exact specification or suitability of a particular product. Use the selected model’s documentation and the relevant site assessment for installation decisions." },
           { title: "Quotations and availability", text: "A written quotation identifies the proposed equipment, configuration, price basis and included services. Product availability, delivery arrangements and site-dependent work need to be confirmed for the project. A form reference acknowledges a recorded enquiry; it does not reserve stock or confirm a delivery date." },
@@ -797,8 +797,8 @@ export const pages: SitePage[] = [
         eyebrow: "CONDITIONS DU SITE ET DES DEMANDES",
         heading: "D’une demande à une portée convenue.",
         intro: "Le site vous aide à explorer les options de sauna et à préparer une demande. Un formulaire envoyé amorce un échange; il ne constitue pas une commande ni une entente d’installation.",
-        image: "",
-        imageAlt: "",
+        image: "/images/editorial-terms.webp",
+        imageAlt: "Dossier sobre, crayon et échantillon de cèdre sur un bureau.",
         sections: [
           { title: "Renseignements de planification", text: "Les catégories, les guides et les images d’ambiance expliquent des options de projet. Ils ne confirment pas la disponibilité, les caractéristiques exactes ou la compatibilité d’un produit. Les décisions d’installation reposent sur la documentation du modèle choisi et l’évaluation de l’emplacement." },
           { title: "Soumissions et disponibilité", text: "Une soumission écrite précise l’équipement, la configuration, la base du prix et les services proposés. La disponibilité, la livraison et les travaux propres au site doivent être confirmés. Une référence de formulaire confirme l’enregistrement d’une demande, pas une réservation de stock ou une date de livraison." },
@@ -821,8 +821,8 @@ export const pages: SitePage[] = [
         eyebrow: "GUIDE · PROJECT BUDGET",
         heading: "Budget for the complete sauna project.",
         intro: "The useful question is not only what the sauna costs. It is what you need to spend to receive the agreed equipment, place it at your property and complete the work included in your project.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Sauna interior details to consider when defining an equipment package",
+        image: "/images/editorial-guide-budget.webp",
+        imageAlt: "Wood samples, a calculator and blank planning sheets.",
         sections: [
           { title: "1. Define the configuration first", text: "Start with the exact enclosure, size, layout and heating arrangement. Record the components included in the offer and anything required separately. A photograph may show accessories, glazing or an entrance configuration that is not part of the quoted package. Ask for a written equipment list and the relevant model documents. Without that common starting point, two prices may describe substantially different projects." },
           { title: "2. Separate the main cost lines", items: [
@@ -850,8 +850,8 @@ export const pages: SitePage[] = [
         eyebrow: "GUIDE · BUDGET DU PROJET",
         heading: "Prévoyez le budget du projet complet.",
         intro: "La question utile dépasse le prix du sauna. Il faut prévoir les dépenses pour recevoir l’équipement convenu, le placer à votre propriété et réaliser les travaux compris dans votre projet.",
-        image: "/images/sauna-detail.webp",
-        imageAlt: "Détails intérieurs d’un sauna à examiner pour définir l’ensemble d’équipement",
+        image: "/images/editorial-guide-budget.webp",
+        imageAlt: "Échantillons de bois, calculatrice et feuilles de planification vierges.",
         sections: [
           { title: "1. Définissez d’abord la configuration", text: "Commencez par la cabine exacte, les dimensions, l’aménagement et le chauffage. Notez les composants inclus dans l’offre et les éléments à prévoir séparément. Une photo peut montrer des accessoires, du vitrage ou une entrée qui ne font pas partie du prix. Demandez une liste écrite et la documentation du modèle. Sans cette base commune, deux prix peuvent correspondre à des projets très différents." },
           { title: "2. Distinguez les principaux postes", items: [
@@ -886,8 +886,8 @@ export const pages: SitePage[] = [
         eyebrow: "GUIDE · DELIVERY & SITE READINESS",
         heading: "Plan the whole route, not just the address.",
         intro: "A delivery address tells the carrier where to go. A useful site plan also explains where the shipment will be unloaded, how it reaches its final position and who is responsible for each stage.",
-        image: "/images/outdoor.webp",
-        imageAlt: "Outdoor sauna positioned within a landscaped property",
+        image: "/images/editorial-guide-delivery.webp",
+        imageAlt: "Open garden gate and path leading toward a sauna concept.",
         sections: [
           { title: "1. Understand what is arriving", text: "Ask whether the sauna arrives as a kit, separate components or another agreed format. Obtain the relevant package dimensions and handling information for that configuration. These details affect the route and equipment needed. Do not infer the delivery format from a photograph of the finished sauna. Keep the supplier’s shipment information with the installation brief so the receiving person and contractor plan around the same delivery." },
           { title: "2. Identify the actual unloading point", text: "Clarify where the delivery vehicle can stop, whether unloading is included and what must be available on arrival. Confirm who will receive the shipment and how any appointment is arranged. A driveway delivery, a terminal pickup and final backyard placement are different services. If another transport stage is required, specify who arranges it and where responsibility transfers between the agreed tasks." },
@@ -909,8 +909,8 @@ export const pages: SitePage[] = [
         eyebrow: "GUIDE · LIVRAISON ET PRÉPARATION",
         heading: "Prévoyez tout le trajet, pas seulement l’adresse.",
         intro: "L’adresse indique au transporteur où aller. Un plan utile précise aussi le point de déchargement, le déplacement jusqu’à l’emplacement final et le responsable de chaque étape.",
-        image: "/images/outdoor.webp",
-        imageAlt: "Sauna extérieur installé dans l’aménagement d’une propriété",
+        image: "/images/editorial-guide-delivery.webp",
+        imageAlt: "Portail de jardin ouvert et sentier menant à un concept de sauna.",
         sections: [
           { title: "1. Comprenez ce qui sera livré", text: "Demandez si le sauna arrive en ensemble à assembler, en composants séparés ou sous une autre forme convenue. Obtenez les dimensions des colis et les renseignements de manutention. Ils déterminent le trajet et les moyens nécessaires. Ne déduisez pas le format de livraison d’une photo du sauna terminé. Conservez les détails d’expédition avec le projet pour que la personne qui reçoit l’envoi et l’entrepreneur préparent la même livraison." },
           { title: "2. Identifiez le vrai point de déchargement", text: "Précisez où le camion peut s’arrêter, si le déchargement est inclus et ce qui doit être disponible à l’arrivée. Déterminez qui reçoit l’envoi et comment le rendez-vous est organisé. Une livraison dans l’entrée, une cueillette au terminal et la mise en place dans la cour sont des services différents. Pour une étape de transport supplémentaire, indiquez qui l’organise et comment les responsabilités se répartissent." },
@@ -939,8 +939,8 @@ export const pages: SitePage[] = [
         eyebrow: "GUIDE · COMMERCIAL PLANNING",
         heading: "Write a brief the project team can work from.",
         intro: "A useful commercial brief connects the facility’s operating needs with the equipment and work being requested. It helps suppliers, project managers and contractors assess the same project rather than fill in different assumptions.",
-        image: "/images/commercial.webp",
-        imageAlt: "Sauna and relaxation area illustrating a hospitality project setting",
+        image: "/images/editorial-guide-commercial.webp",
+        imageAlt: "Wellness reception corner with towel storage and a sauna entrance.",
         sections: [
           { title: "1. Describe the intended operation", text: "State the facility type, who will use the sauna and the proposed operating pattern. Include expected operating hours, the desired user capacity and how access will be managed. A guest accommodation project, fitness facility and shared residential amenity may need different assessments. Explain whether the project is a new installation, a renovation or a replacement so the equipment discussion starts with the actual application." },
           { title: "2. Document the existing conditions", text: "Provide dimensions, plans and useful photos. For an existing sauna, include equipment identification and the reason for the proposed change. Identify known constraints such as limited access, occupied premises, work windows or finishes to be retained. Clearly distinguish measured information from estimates. If parts of the site have not been assessed, list those questions instead of allowing them to become assumed facts in the quotation." },
@@ -962,8 +962,8 @@ export const pages: SitePage[] = [
         eyebrow: "GUIDE · PROJET COMMERCIAL",
         heading: "Préparez une description utile à toute l’équipe.",
         intro: "Un bon dossier relie les besoins d’exploitation à l’équipement et aux travaux demandés. Il permet aux fournisseurs, aux gestionnaires et aux entrepreneurs d’évaluer le même projet plutôt que de partir d’hypothèses différentes.",
-        image: "/images/commercial.webp",
-        imageAlt: "Espace de sauna et de détente illustrant un projet d’hébergement",
+        image: "/images/editorial-guide-commercial.webp",
+        imageAlt: "Coin d’accueil bien-être avec rangement de serviettes et entrée de sauna.",
         sections: [
           { title: "1. Décrivez l’exploitation prévue", text: "Précisez le type d’établissement, les utilisateurs et le fonctionnement envisagé. Ajoutez les heures d’ouverture, la capacité souhaitée et la gestion de l’accès. Un hébergement, un centre d’entraînement et un espace commun résidentiel peuvent demander des évaluations différentes. Indiquez s’il s’agit d’une nouvelle installation, d’une rénovation ou d’un remplacement pour que le choix d’équipement parte de l’application réelle." },
           { title: "2. Documentez l’état des lieux", text: "Fournissez les dimensions, les plans et des photos utiles. Pour un sauna existant, ajoutez l’identification des appareils et la raison du changement. Signalez les contraintes : accès limité, locaux occupés, horaires de travaux ou finis à conserver. Distinguez les mesures des estimations. Si certains éléments n’ont pas été évalués, nommez les questions au lieu de les laisser devenir des faits présumés dans la soumission." },

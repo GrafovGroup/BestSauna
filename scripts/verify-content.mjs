@@ -1,7 +1,9 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 import { pages, pagePath } from "../content/site.ts";
+import { supportingImages } from "../content/editorial-images.ts";
 import { guideSummaries } from "../content/guide-summaries.ts";
 import { pageStructuredData } from "../lib/page-seo.ts";
 
@@ -14,6 +16,14 @@ const routes = new Map();
 const contentImages = new Set();
 const checkedAssets = new Set();
 const structuredTypes = new Set();
+const imageOwners = new Map();
+function ownImage(url, owner) {
+  check(Boolean(url), owner + " needs an editorial image.");
+  if (!url) return;
+  check(!imageOwners.has(url), owner + " repeats the image from " + imageOwners.get(url));
+  imageOwners.set(url, owner);
+  contentImages.add(url);
+}
 
 function check(condition, message) {
   if (!condition) errors.push(message);
@@ -71,6 +81,8 @@ async function sourceFiles(folder) {
 
 check(Array.isArray(pages) && pages.length > 0, "The content collection must contain pages.");
 for (const page of pages) {
+  ownImage(page.copy.en.image, page.key);
+  check(page.copy.en.image === page.copy.fr.image, page.key + " language versions must share their page image.");
   check(typeof page.key === "string" && page.key.length > 0, "A page is missing its key.");
   check(!keys.has(page.key), "Duplicate page key: " + page.key);
   keys.add(page.key);
@@ -118,7 +130,21 @@ for (const page of pages) {
     for (const key of related ?? []) check(keys.has(key), page.key + "/" + lang + " links to unknown page: " + key);
   }
 }
+for (const [key, image] of Object.entries(supportingImages)) {
+  ownImage(image.src, key);
+  check(Boolean(image.alt.en.trim() && image.alt.fr.trim()), key + " needs bilingual image descriptions.");
+}
 await Promise.all([...contentImages].flatMap((url) => [asset(url), asset(url.replace(/\.webp$/, "-800.webp"))]));
+const imageHashes = new Map();
+for (const url of contentImages) {
+  const path = assetFile(url);
+  if (!path) continue;
+  try {
+    const hash = createHash("sha256").update(await readFile(path)).digest("hex");
+    check(!imageHashes.has(hash), url + " duplicates the image bytes from " + imageHashes.get(hash));
+    imageHashes.set(hash, url);
+  } catch { /* Missing files are already reported by asset(). */ }
+}
 
 const manifestPath = await asset("/site.webmanifest");
 let manifest;

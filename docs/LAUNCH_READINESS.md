@@ -17,6 +17,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | Website area | Implementation status |
 | --- | --- |
 | Main English/French journeys | 20 paired pages, navigation, brand assets, category/service copy and quotation entry points implemented. |
+| Distinct page imagery | 37 distinct editorial image placements across 20 page topics, including separate navigation cards, bilingual descriptions and responsive WebP exports. English/French counterparts share artwork; different pages do not. |
 | Quotation intake | Validation, review-before-send, temporary drafts, D1 persistence and tracked Formspree notifications implemented. Inbox operations remain a launch dependency below. |
 | Sauna comparison | Two- or three-approach comparison plus approved-model comparison, project/service context, responsive layouts and bilingual shortlist quote handoff implemented. Model comparison appears when two eligible catalogue records exist. |
 | Buying guides and search foundations | Bilingual summaries, section navigation, article/page/collection structured data, matching breadcrumbs and reciprocal language sitemap entries implemented. Indexing remains disabled for private review. |
