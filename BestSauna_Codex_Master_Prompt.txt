@@ -1,0 +1,256 @@
+BESTSAUNA.CA — COMPLETE CODEX WEBSITE MASTER PROMPT
+
+Prepared for Dmitry Grafov / Grafov Group Inc.
+Approved brand direction: 04 — Pure Wordmark
+Purpose: instructions for a future implementation, not a report of an executed build.
+
+1. YOUR MANDATE
+
+Act as the product designer, bilingual content lead and implementation engineer for BestSauna.ca. Build a polished, useful Canadian sauna sales website with a clear quotation process. Work through the phases below, make reasonable implementation decisions, and complete all authorized reversible work. Maintain a working review preview throughout the project.
+
+The business will sell a selected range of sauna equipment and coordinate defined delivery, assembly and installation services through qualified partners. Residential and cottage customers are the primary audience. Commercial buyers need a separate, credible project enquiry route.
+
+This is a direct equipment and service business. Do not position it as a directory, lead broker, affiliate ranking site or marketplace. Describe partner fulfilment honestly without claiming that subcontractors are employees. The customer should understand what BestSauna sells, what the quotation includes and who performs the work.
+
+Build within the repository and site environment actually supplied. A domain purchase does not establish a hosting account, deployment authorization or GitHub repository. Do not infer a repository such as grafovgroup/bestsauna, create an external project, register services, purchase assets, contact suppliers or publish externally without corresponding authorization in the working session. Existing authorization remains valid; do not request it again unnecessarily.
+
+2. FIXED BUSINESS BRIEF
+
+Brand: BestSauna.ca. Keep the domain in the brand wordmark.
+Intended operating company: Grafov Group Inc.; confirm customer-facing seller details against supplied business records before legal or checkout use.
+Planned telephone: (833) 696-9996. Use tel:+18336969996.
+Planned email: info@bestsauna.ca. Verify mailbox and routing before launch.
+Languages: English for Canada and French appropriate for Québec, present from the first public release.
+Geographic strategy: Canada-wide supply enquiries, with availability and delivered cost confirmed by destination. Initial assembly and installation coverage will be a contractor-confirmed Ontario area, not all of Ontario by default.
+Fulfilment strategy: supplier-shipped orders where agreed. Do not imply owned stock, a warehouse, a showroom or existing supplier authorization.
+Primary conversion: a qualified request for a quotation. Do not build an operational checkout until actual products, prices, payment terms, fulfilment and authorization support it.
+
+The customer promise is practical: select an appropriate sauna, understand the project scope and obtain a clear quotation. Avoid unsupported superlatives, medical benefits, guaranteed savings, rental-income projections and claims of national market leadership.
+
+Cold plunges, mobile rentals, manufacturing and a physical studio are possible later businesses. They are outside this launch unless the owner changes the scope.
+
+3. INPUTS, EVIDENCE AND ASSET HANDLING
+
+Use the supplied launch blueprint, this prompt, approved logo files and verified supplier documentation together. The latest explicit owner instruction controls a genuine conflict. If the older blueprint still invites selection among five concepts, that instruction is superseded: concept 04 is selected.
+
+Expected package-relative brand references:
+
+brand/bestsauna-approved-concept-04.png — exact selected reference.
+
+brand/bestsauna-wordmark-en-light.png — English variant with a transparent background.
+
+brand/bestsauna-wordmark-en-dark.png — English reversed variant on a solid charcoal background.
+
+brand/bestsauna-wordmark-fr-light.png — French maintenance-descriptor variant with a transparent background.
+
+brand/bestsauna-wordmark-fr-dark.png — French maintenance-descriptor reversed variant on a solid charcoal background.
+
+brand/[approved-descriptor-free-light-asset] and brand/[approved-descriptor-free-dark-asset] — resolve to supplied derivatives if present.
+
+These paths describe the handoff package. Inspect actual files before using or copying them into the application. Visually compare each variant with the approved source, including transparent edges, reversed colours and the descriptor; a filename or format metadata alone does not prove that the artwork is correct. Do not create broken links to absent assets. Maintain an asset manifest mapping package files to their implementation paths.
+
+The supplied PNGs are raster artwork, not vector masters. The two light-background exports have alpha transparency; the reversed exports use a solid charcoal background because the white-on-transparent exports did not pass visual inspection. Do not assume every PNG is transparent. Inspect the reversed background colour against the intended footer and avoid a mismatched rectangle; create and verify a clean derivative if necessary. Never ship a halo, distressed edge or damaged letter. Use assets cleanly at suitable resolutions. Do not call an approximate font recreation an approved SVG. A faithful future vector master is a separate deliverable if needed; adequate approved raster artwork need not block the website preview.
+
+Maintain an internal evidence register recording the source, verification date and permitted use of product specifications, photographs, commercial suitability, prices, warranty information and service coverage. Keep unresolved facts in project documentation, not customer-facing badges or admin messages. A supplier mentioned in planning is not automatically a partner.
+
+4. PHASE 0 — AUDIT BEFORE CHANGING THE PROJECT
+
+Inspect the actual repository, local instructions, framework, content, assets, environment variables, scripts, branch state, hosting constraints and existing integrations. Preserve unrelated work. Determine whether there is an existing site to improve or an empty project to implement.
+
+Check actual domain handling, language routes, contact links, forms, analytics, metadata, icons and build behaviour. Identify content already backed by evidence. Do not delete genuine reviews, product records or customer material merely because the new design does not yet accommodate them.
+
+Record missing external configuration precisely: repository destination, hosting target, approved supplier catalogue, image rights, contractor map, form endpoint, mailbox routing, telephone routing and any deployment credentials. Continue with the useful local build while these are unresolved.
+
+Choose the smallest suitable architecture. Prefer a static-first implementation with semantic HTML and limited client-side JavaScript. Retain a sound existing stack; do not migrate frameworks for appearance alone. For a new project, use an established static-capable stack, a lockfile and reproducible build commands. Research current primary documentation when implementation details require verification.
+
+Produce a short audit and implementation plan, then proceed. Do not turn the audit into an unnecessary approval barrier.
+
+5. PHASE 1A — APPROVED BRAND, LOCKED
+
+The selected identity is concept 04, Pure Wordmark. Do not generate five new logos or reopen the selection phase.
+
+Preserve the approved typography and letter relationships, the custom heat-cap detail integrated with the S, charcoal #22282B, and amber #BA7C39. The .ca is amber in the primary light-background version. Follow the approved reversed artwork on dark backgrounds. Do not add a standalone cabin, flame, maple leaf, badge, crest or unrelated emblem.
+
+Use the full approved lockup where legible. On narrow headers, use a matching approved descriptor-free derivative without changing the wordmark. Never compress the logo horizontally or reduce a long descriptor until it becomes unreadable. Preserve transparent edges and avoid a visible rectangular background in the footer.
+
+The planned English descriptor is SAUNAS • INSTALLATION • SERVICE. The French artwork may show SAUNAS • INSTALLATION • ENTRETIEN. Public use of ENTRETIEN requires an actual maintenance offering. If the business provides after-sales assistance only, use an approved shared SERVICE descriptor or a descriptor-free variant. Artwork selection does not establish service capability; published copy and coverage must remain accurate.
+
+Create a coherent design system with charcoal text, restrained amber accents, warm neutral backgrounds and natural material imagery. Use sufficient contrast; amber is not automatically suitable for small text on white. Keep the identity distinct from the owner's other websites.
+
+Use a wide layout, approximately 1280–1440 pixels of maximum content width where appropriate, balanced desktop whitespace and comfortable mobile spacing. Keep long reading passages narrower. Navigation labels and buttons are uppercase. Buttons are rounded, with strong hover, focus, disabled and loading states. Remove decorative arrows from buttons and headings; retain functional indicators only where users need them, such as expandable menus.
+
+6. PHASE 1B — INFORMATION ARCHITECTURE AND CONTENT
+
+Build a complete bilingual customer journey before expanding the page count. Use a central translation and route map so every language switch resolves to the equivalent page, preserving relevant product context.
+
+Core route pairs, adapted to a sound existing routing convention if necessary:
+
+Home: /en/ and /fr/
+Saunas: /en/saunas/ and /fr/saunas/
+Outdoor: /en/saunas/outdoor/ and /fr/saunas/exterieurs/
+Indoor: /en/saunas/indoor/ and /fr/saunas/interieurs/
+Infrared: /en/saunas/infrared/ and /fr/saunas/infrarouges/
+Cottages: /en/cottage-saunas/ and /fr/saunas-pour-chalet/
+Commercial: /en/commercial-saunas/ and /fr/saunas-commerciaux/
+Delivery and installation: /en/delivery-installation/ and /fr/livraison-installation/
+Comparison: /en/compare-saunas/ and /fr/comparer-les-saunas/
+Heaters and accessories: /en/heaters-accessories/ and /fr/chauffe-saunas-accessoires/
+Guides: /en/guides/ and /fr/guides/
+Coverage: /en/areas/ and /fr/regions-desservies/
+Support: /en/support/ and /fr/soutien/
+Quote: /en/request-a-quote/ and /fr/demande-de-soumission/
+About: /en/about/ and /fr/a-propos/
+
+Provide truthful privacy and terms pages appropriate to the implemented enquiry process. Do not invent refund, financing, warranty or retention policies. Record policy details needing the owner's decision.
+
+Keep the primary navigation concise. Place About and policy links in the footer. Use categories and filters to help selection; do not create an indexable page for every combination of size, shape, material, city and heater. Product and accessory purchase pages require approved data. Until then, category pages can explain selection factors and invite a relevant project enquiry without pretending products are available.
+
+7. HOMEPAGE AND CUSTOMER EXPERIENCE
+
+Suggested English headline: Find the right sauna for your space.
+Suggested French headline: Trouvez le sauna qui convient à votre espace.
+
+Supporting copy should explain homes, cottages and commercial projects, the equipment-selection process and the distinction between supply and location-dependent installation. When capabilities are confirmed, use direct commercial language. While building the preview, avoid wording that promises unestablished supply agreements or coverage.
+
+Primary actions: EXPLORE SAUNAS and REQUEST A QUOTE.
+French actions: DÉCOUVRIR LES SAUNAS and DEMANDER UNE SOUMISSION.
+
+Structure the homepage around a strong photographic hero, useful product categories, the three service packages, how quotations work, delivery/site readiness, a commercial-project introduction, a small set of practical answers and a final quotation action. Add genuine proof only when available. Do not fill trust sections with invented statistics, badges, customer logos, awards, reviews or fabricated project photos.
+
+Let customers compare indoor versus outdoor, traditional versus infrared, cabin versus barrel, seating and site requirements. Explain tradeoffs without declaring one format universally superior. The category structure should make the catalogue understandable before the customer knows a model name.
+
+Use image-rich, distinct layouts across important pages, with purposeful product detail images and diagrams where verified. Obtain rights for supplier photographs. Generic licensed lifestyle imagery may establish atmosphere, but must not masquerade as an exact item for sale or completed BestSauna project. Generated imagery, if used, belongs in clearly contextual design roles and must not invent product details. Do not add compulsory-looking AI credits; preserve any attribution actually required by an asset licence.
+
+Provide responsive image sizes, intentional crops and stable dimensions. Prioritize the hero image appropriately, lazy-load below-the-fold imagery, and avoid autoplay video or heavy motion. Respect reduced-motion preferences.
+
+8. PRODUCT RANGE AND PUBLICATION GATES
+
+The initial sourcing plan contains ten archetypes: compact outdoor cabin; family outdoor cabin; larger outdoor cabin; modern cube or glass-front sauna; compact barrel; family barrel; cabin with entrance or changing area; wood-fired cottage sauna; indoor traditional kit; and indoor infrared cabin.
+
+These are sourcing briefs, not supplier models or catalogue claims. Do not manufacture model names, SKUs, specifications, capacity figures, prices, delivery dates or stock status. Publish fewer real products rather than ten fictional ones.
+
+Use structured product records with verified identity, supplier permission where needed, translated descriptions, exact configuration, dimensions, usable seating, materials, heater/control options, required components, inclusions, exclusions, installation documentation, intended environment, warranty, images and evidence references. Treat unknown values as unknown internally; omit unsupported public claims.
+
+A complete product page should answer: what is included, what remains to be arranged, where it can be installed, how delivery works, what preparation is required and how the buyer receives a quotation. Identify whether the heater, controls, stones, roofing and other essential components are included. Use model-specific documentation rather than extrapolating from a similar sauna.
+
+Display Canadian-dollar prices only when verified and approved. Explain the pricing basis and whether freight, assembly and applicable taxes are included. Do not use $0, fabricated crossed-out prices, artificial scarcity, invented discounts or unsupported financing payments. Use a quotation route when the actual price depends on configuration or destination.
+
+Separate private publication state from visible availability. A draft model must never appear through a sitemap, search component, related-product card or structured data. Commercial and rental-property suitability require application-specific evidence; residential warranty language must not be silently extended to those uses.
+
+9. THE THREE SERVICE PACKAGES
+
+SUPPLY & DELIVERY: the exact equipment configuration, order coordination, the quoted delivery method and destination, manufacturer documents and a defined support route. State who unloads and where the carrier leaves the shipment. Moving goods beyond that point, assembly, packaging removal, base preparation and specialist work are separate unless explicitly included.
+
+SUPPLY, DELIVERY & ASSEMBLY: add a site-readiness review, an appointment within confirmed coverage, assembly of the contracted kit and a documented handover. Include placement and packaging removal only when priced and supported. State who provides the base and who performs specialist connections. Assembly completion does not imply the sauna is ready to operate when other required work remains.
+
+MANAGED INSTALLATION PROJECT: a quotation-led scope covering assessment, final configuration, delivery, placement, assembly, included site work and appointed specialists. Identify responsibility for applications, permissions, inspections, schedule dependencies, payment milestones and changes. Distinguish BestSauna-managed work from trades retained directly by the customer.
+
+The website should explain these differences in an accessible comparison, followed by a relevant enquiry action. Avoid universal all-inclusive or turnkey claims. Availability is determined by the actual product, site and contractor coverage. Offer support and maintenance only to the extent the business can deliver them.
+
+10. CANADIAN FRENCH AND LOCAL COVERAGE
+
+Show FR in the top bar on English pages and EN on French pages, with an accessible full language label. Do not hide the switch solely in the footer or mobile menu. Keep it visible and usable on small screens. Set document language correctly and translate navigation, forms, validation, confirmation/error states, metadata, image descriptions and useful supporting content.
+
+Use natural Canadian French, including soumission where appropriate. Review accents, punctuation and wrapping in uppercase labels. Preserve BestSauna.ca and exact model identifiers. Do not send users to the homepage when a corresponding translated page exists. Never declare a French counterpart in search metadata if it is missing or contains English placeholder content.
+
+Design the geographic data architecture for all provinces, territories and relevant metropolitan areas. Publish a useful national coverage overview that distinguishes supply enquiries, delivery conditions and actual assembly coverage. Do not equate accepting an enquiry with maintaining a local crew.
+
+Publish province or city pages only when they have meaningful verified local information: actual service boundaries, delivery logistics, applicable site considerations, local partner capability or real completed work. Do not generate thousands of name-swapped pages. Unready locations stay out of navigation, sitemaps and indexable routes. Do not invent addresses, offices, map pins or city-specific telephone numbers.
+
+11. FORMS, CONTACT AND PRIVACY
+
+The enquiry flow must work through a real configured backend or approved form service. Reuse an existing integration only after verifying that it belongs to this business and routes correctly. Never borrow another brand's endpoint or fabricate credentials. Keep secrets server-side and provide an environment-variable example without real secrets.
+
+Initial required fields: name, email, city/postal code, intended use, indoor/outdoor location, preferred product or help choosing, required service and timeframe. Optional fields: phone, preferred contact method, capacity, heat preference, budget guidance and site photos. Carry the selected product, page and language into the enquiry without making users re-enter them.
+
+Collect full addresses, measurements, access details, base conditions, handling requirements and specialist assessments during qualification. Commercial enquiries also need facility type, usage, operating hours, existing equipment or plans, procurement contact and project requirements.
+
+Implement accessible validation, clear field labels, understandable errors, duplicate-submit protection and genuine pending/success/failure states. Success must follow the receiving service's confirmed acceptance; do not claim inbox delivery unless it was separately verified. Handle network failure and rejection honestly. Preserve entered information appropriately so customers can correct errors.
+
+Use spam controls supported by the actual backend. Configure server-side validation and rate limiting where available. Do not treat a client-only honeypot as a complete security system. Offer file upload only when its storage, file limits, privacy and delivery have been implemented and tested; otherwise omit the control.
+
+Keep marketing consent separate, optional and unchecked. Match the privacy text to actual collection, recipients and retention decisions. Do not invent cookie, analytics or data-handling practices.
+
+If the backend is missing, keep the review preview navigable but never simulate successful submission. Use an honest temporary-unavailability state and verified alternative contacts where available. Do not expose API keys, configuration labels, debug traces or internal launch status to consumers. Missing working enquiry delivery blocks public launch, not completion of the local preview.
+
+Verify phone routing and mailbox ownership through available authorized checks. Do not claim a successful call, inbox test or email delivery without evidence. Use controlled test submissions to a confirmed destination only within the session's authorization; do not contact suppliers or unrelated recipients.
+
+12. SEARCH, STRUCTURED DATA AND ANSWER QUALITY
+
+Implement unique, accurate page titles and descriptions; clear headings; descriptive internal links; breadcrumbs where useful; readable URLs; correct status codes; and intentional redirects. Establish the canonical production origin from actual configuration. Normalize trailing slashes and host variants consistently without creating redirect chains.
+
+Use self-referencing canonical URLs for published canonical pages and reciprocal en-CA/fr-CA hreflang links for real equivalents. If x-default is used, point it to the actual language-selection/default experience. A root redirect must remain predictable and must not trap users or crawlers in automatic location/language changes.
+
+Generate sitemaps only from public, indexable, canonical 200-status pages. Include both language versions and exclude drafts, internal previews, form confirmations and unnecessary filter variants. Keep robots directives aligned with the environment. Preview environments must not be indexed; production must not inherit a blanket noindex. Remember that robots blocking is not access control.
+
+Use Organization and WebSite data grounded in verified company information. Do not fabricate LocalBusiness locations. Add BreadcrumbList where reflected in the visible page. Product/Offer markup requires an actual verified product and truthful offer data; omit product offer markup from generic archetypes or quote-only category pages. Never create fake prices, ratings, inventory or merchant policies for rich results. Validate any structured data against the rendered content.
+
+Write useful answers to real buying questions: package inclusions, complete project costs, barrel versus cabin layouts, delivery access, site readiness, cottage planning and commercial procurement. State what affects a quotation instead of inventing price ranges. Distinguish manufacturer facts from general guidance and cite primary documentation for technical or jurisdiction-specific claims. Do not promise rankings, AI citations or rich-result eligibility.
+
+Search engine optimization and answer engine optimization should come from clear, accurate, crawlable information. Avoid mass FAQ repetition, keyword stuffing and fabricated expertise. Guides need substantive answers, useful comparisons and appropriate evidence, not a publish-date refresh without a content change.
+
+13. FAVICONS, ACCESSIBILITY AND PERFORMANCE
+
+Implement the brand favicon set across every page, including nested English and French routes, support pages, error pages and any static templates. Remove framework default icons. A small-size icon may use an approved derivative of the existing S and heat-cap detail; this is not permission to design a new brand emblem.
+
+Provide a genuine multi-size favicon.ico, 16- and 32-pixel PNG icons, an appropriate SVG icon if supplied or faithfully available, a 180-pixel Apple touch icon, and 192/512-pixel application icons. Provide correctly composed maskable icons with the essential mark inside the relevant safe area; do not relabel an unsuitable image as maskable. Use a valid web manifest and appropriate light/dark treatment. Confirm that the tiny mark remains legible.
+
+Use shared head metadata and root-correct asset paths, not relative links that fail on deep routes. Inspect icon requests, browser tabs and pinned/home-screen behaviour where the environment permits. Report browser checks actually performed; do not claim exhaustive support from a single screenshot.
+
+Use semantic landmarks, keyboard-operable navigation, visible focus, labelled controls, logical heading structure and descriptive alternatives. Ensure menus and dialogs manage focus correctly and close predictably. Touch targets must be comfortable. Check text zoom, French wrapping, form errors, contrast and reduced motion. Do not claim formal accessibility certification from automated scans.
+
+Avoid unnecessary client bundles, layout shifts and duplicate font downloads. Use modern image formats where supported, responsive sizing, caching appropriate to hosting and local or properly licensed fonts. Measure available performance indicators and resolve material bottlenecks. Report measured results and limitations rather than promising a perfect score.
+
+14. PHASE 2 — IMPLEMENT THE COMPLETE EXPERIENCE
+
+Build the approved homepage, reusable layout, category/use-case pages, package comparison, commercial route, guides, contact/support content, bilingual forms and footer. Implement translated page pairs together so one language does not become an unfinished afterthought.
+
+Separate content, product evidence, service coverage and integration settings from presentation. Use explicit publication gates so missing records are omitted safely. Do not render empty product cards, broken comparison tables, placeholder addresses or administrative readiness messages.
+
+Make product filters and comparisons genuinely useful only where real data supports them. If there are too few approved models for a comparison tool, provide an honest buying guide rather than simulated product data. Keep a quotation-led preview working while supplier details are being resolved.
+
+Implement a responsive mobile navigation, accessible interactions, functional telephone/email links and a clear route back to a relevant category. Avoid excessive pop-ups, aggressive timers, decorative counters and sticky elements that obscure forms or content. Do not add a generic AI credit, generator footer or unexplained development copy.
+
+Create documentation covering local setup, build, preview, deployment configuration, content updates, products, translation pairs, coverage changes, asset rights and enquiry routing. Keep private commercial inputs out of the public bundle. Do not include supplier wholesale costs or internal contribution targets in customer pages.
+
+15. PHASE 3 — VERIFY THE RISKS THAT MATTER
+
+Run the actual production build and available static/type checks. Use the project's appropriate test tools, concentrating on meaningful failures rather than adding tests that repeat implementation details.
+
+Verify the principal customer journeys in English and French: category selection, product enquiry where available, package understanding, commercial enquiry, language switching, contact actions and form outcomes. Test missing and invalid inputs, backend rejection, network failure and double submission. Verify a real successful request only when the configured destination and authorization allow it.
+
+Inspect representative desktop, tablet and mobile widths, including a narrow phone around 320 pixels and a common phone around 390 pixels. Check overflow, navigation, tap targets, sticky controls, image crops, footer logo, French labels and form usability. Check keyboard use and enlarged text. Resolve visible defects instead of merely reporting them.
+
+Audit all published routes for broken internal links, missing assets, duplicate or incorrect canonical tags, reciprocal language links, sitemap inclusion and indexation directives. Check that unpublished products and locations cannot leak through alternate components or JSON-LD. Verify favicons on nested routes and in available browsers.
+
+Review factual claims against the evidence register. Look specifically for accidental authorized-dealer badges, stock promises, reviews, health claims, nationwide installation claims and inferred commercial warranties. Check that service-package descriptions match the quotation process.
+
+Record commands run, outcomes, important screenshots and any untested external dependency. An unavailable browser or missing endpoint is a reported limitation, not a passed test. Once meaningful checks resolve the remaining risks, finish; do not expand testing indefinitely.
+
+16. PHASE 4 — HANDOFF AND LAUNCH READINESS
+
+Deliver a working review preview and complete implementation in the authorized workspace. If an existing repository and push authorization are supplied, use the agreed branch and preserve its history. Do not invent a remote, deploy to an unrelated site or assume that local changes are live. Follow explicit publication instructions already given in the session.
+
+Before a public commercial launch, the site needs accurate seller/contact information, verified enquiry delivery, approved product and image data for anything advertised as available, truthful delivery terms, actual advertised service coverage and appropriate customer policies. Checkout additionally requires approved payment and order fulfilment arrangements. A missing prerequisite should be listed with its exact owner action; it must not prevent completion of unrelated local work.
+
+Report separately: implemented locally; verified in preview; configured external services; unresolved owner/provider inputs; and externally published changes, if any. Identify the repository, branch, preview URL or local command actually used. Explain material limitations without claiming the business has launched because a page renders.
+
+The final handoff should include source files and assets, setup and build instructions, an environment example, content/evidence register, bilingual route map, coverage/product publishing instructions, validation results and a concise configuration list. Keep the customer-facing site free of these internal project statuses.
+
+17. COMMERCIAL CONTEXT FOR THE FIRST 60 DAYS
+
+Days 1–10: validate supplier terms, documentation, image rights, fulfilment and prospective Ontario contractor coverage.
+Days 11–20: select real products, obtain delivered-cost inputs, define package scopes and establish internal contribution requirements.
+Days 21–35: complete the bilingual website, enquiry handling and support/order records.
+Days 36–45: run a controlled launch within demonstrated capabilities and process suitable enquiries.
+Days 46–60: review actual order contribution, acquisition cost, sales/support time, freight variance and contractor reliability before expanding.
+
+This sequence is operating context, not a promise of supplier approval or orders by a deadline. Three completed pilot orders can be a learning target, not a forecast. Do not create automations, advertising campaigns or supplier outreach simply because they appear in the plan.
+
+Commercial go/no-go decisions depend on product evidence, support responsibility, priced freight and site work, workable contribution, contractor acceptance and appropriate application-specific warranty. Keep these gates in internal records. Broader coverage, more products, rental assets or premises follow evidence from completed work.
+
+18. COMPLETION STANDARD
+
+The result should look and function like a carefully operated sauna business: an approved consistent identity, attractive real imagery, understandable choices, precise package scopes, natural English and French, fast mobile pages and a dependable enquiry path.
+
+Do all work supported by the available inputs. Surface missing facts honestly, preserve a polished review experience and never manufacture commercial readiness. The outcome is a build the owner can review, operate and publish when its actual external prerequisites are satisfied.

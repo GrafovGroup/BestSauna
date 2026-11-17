@@ -1,0 +1,29 @@
+import { pagePath, type Lang } from "@/content/site";
+import { canadianRegions, serviceAreaRecords } from "@/content/coverage";
+import { coverageAccess, coverageAccessName, coverageChecklist, coverageServiceName, coverageServices, publishedCoverageAreas, regionName, type CoveragePlan } from "@/lib/coverage";
+
+export function CoveragePlanner({ lang, plan }: { lang: Lang; plan: CoveragePlan }) {
+  const t = (en: string, fr: string) => lang === "fr" ? fr : en;
+  const path = pagePath("coverage", lang);
+  const regions = [...canadianRegions].sort((a, b) => a.name[lang].localeCompare(b.name[lang], lang));
+  const confirmed = publishedCoverageAreas(serviceAreaRecords, new Date().toISOString().slice(0, 10));
+  return <section className="container coverage-planner" aria-labelledby="coverage-planner-heading">
+    <div className="service-planner-intro"><div><p className="eyebrow">{t("LOCATION. ACCESS. RESPONSIBILITIES.", "EMPLACEMENT. ACCÈS. RESPONSABILITÉS.")}</p><h2 id="coverage-planner-heading" tabIndex={-1}>{t("Plan for your destination.", "Planifiez selon votre destination.")}</h2></div><p>{t("Start with your province or territory and the access you know about. We’ll help you prepare the questions that determine delivery and work on site.", "Commencez par votre province ou territoire et l’accès que vous connaissez. Préparez les questions qui précisent la livraison et les travaux sur place.")}</p></div>
+    <form id="coverage-planner-form" className="service-planner-form coverage-plan-form" method="GET" action={path + "#coverage-results"}>
+      <input type="hidden" name="coverage" value="project"/>
+      <div className="coverage-plan-controls">
+        <label htmlFor="coverage-region">{t("Province or territory", "Province ou territoire")}<select id="coverage-region" name="region" defaultValue={plan.region} required><option value="">{t("Choose your destination", "Choisissez votre destination")}</option>{regions.map(region => <option key={region.code} value={region.code}>{region.name[lang]}</option>)}</select></label>
+        <label htmlFor="coverage-service">{t("Requested service", "Service demandé")}<select id="coverage-service" name="service" defaultValue={plan.service}>{coverageServices.map(service => <option key={service} value={service}>{coverageServiceName(service, lang)}</option>)}</select></label>
+        <label htmlFor="coverage-access">{t("Delivery access", "Accès de livraison")}<select id="coverage-access" name="access" defaultValue={plan.access}>{coverageAccess.map(access => <option key={access} value={access}>{coverageAccessName(access, lang)}</option>)}</select></label>
+      </div>
+      <div className="service-plan-form-footer"><p>{t("Your city and postal code come next in the quote form. These choices prepare an enquiry; availability and costs require assessment of the actual destination.", "La ville et le code postal seront précisés dans le formulaire de soumission. Ces choix préparent une demande; la disponibilité et les coûts exigent l’évaluation de la destination réelle.")}</p><button className="button" type="submit">{t("PREPARE MY BRIEF", "PRÉPARER MA DEMANDE")}</button></div>
+    </form>
+    {plan.region ? <div className="coverage-result">
+      <div className="service-plan-heading"><div><p className="eyebrow">{t("YOUR DESTINATION BRIEF", "VOTRE DESTINATION")}</p><h3 id="coverage-results" tabIndex={-1}>{regionName(plan.region, lang)}</h3><p>{coverageServiceName(plan.service, lang)} · {coverageAccessName(plan.access, lang)}</p></div><a className="service-plan-reset" href={path + "#coverage-planner-heading"}>{t("Start over", "Recommencer")}</a></div>
+      <p className="coverage-boundary">{t("The next step is a destination-specific assessment. Freight, unloading, assembly and specialist work are confirmed separately in the written quotation.", "La prochaine étape est une évaluation propre à la destination. Le transport, le déchargement, l’assemblage et les travaux spécialisés sont confirmés séparément dans la soumission écrite.")}</p>
+      <div className="coverage-checklist">{coverageChecklist(plan, lang).map((item, i) => <article key={item.title}><span className="eyebrow" aria-hidden="true">0{i + 1}</span><h4>{item.title}</h4><p>{item.detail}</p></article>)}</div>
+    </div> : <p className="coverage-empty" id="coverage-results" tabIndex={-1}>{t("Choose a destination to prepare your delivery and service brief. You can leave the service and access questions undecided.", "Choisissez une destination pour préparer votre demande de livraison et de services. Vous pouvez laisser le service et l’accès à déterminer.")}</p>}
+    <div className="service-plan-next"><div><h3>{t("Take your location into the conversation.", "Parlons de votre emplacement.")}</h3><p>{t("Your current choices will fill the project message. Add your city, postal code and contact details, then review before sending.", "Vos choix actuels rempliront le message de projet. Ajoutez la ville, le code postal et vos coordonnées, puis vérifiez avant l’envoi.")}</p></div><button type="submit" form="coverage-planner-form" formAction={pagePath("quote", lang)} className="button">{t("USE THIS BRIEF IN MY QUOTE", "JOINDRE À MA DEMANDE")}</button></div>
+    {confirmed.length > 0 && <div className="coverage-confirmed"><h3>{t("Defined local service scopes", "Portées locales définies")}</h3><p>{t("Each scope has its own boundaries and exclusions. Confirm availability for your address and project before scheduling.", "Chaque portée a ses limites et exclusions. Confirmez la disponibilité pour votre adresse et votre projet avant de fixer les travaux.")}</p>{confirmed.map(area => <article key={area.id}><h4>{area.copy[lang].name}</h4><dl><dt>{t("Boundary", "Limites")}</dt><dd>{area.copy[lang].boundary}</dd><dt>{t("Scope", "Portée")}</dt><dd>{area.copy[lang].scope}</dd><dt>{t("Exclusions", "Exclusions")}</dt><dd>{area.copy[lang].exclusions}</dd></dl></article>)}</div>}
+  </section>;
+}

@@ -1,3 +1,4 @@
-export function GET(request: Request) {
-  return Response.redirect(new URL("/en/", request.url), 308);
+import { siteSettings } from "@/lib/site-settings";
+export function GET() {
+  return Response.redirect(new URL("/en/", siteSettings().origin), 308);
 }

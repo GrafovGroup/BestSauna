@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { handleQuoteRequest, MAX_QUOTE_BODY_BYTES } from "../lib/quote-service.ts";
+import { handleQuoteRequest, MAX_QUOTE_BODY_BYTES, NOTIFICATION_TIMEOUT_MS } from "../lib/quote-service.ts";
+import { publishedProducts, productQuoteMessage } from "../lib/product-catalogue.ts";
+import { catalogueFixture } from "./fixtures/catalogue.mjs";
+import { modelQuoteMessage } from "../lib/model-comparison.ts";
+import { readServicePlan, servicePlanMessage } from "../lib/service-planner.ts";
+import { coveragePlanMessage } from "../lib/coverage.ts";
 
 const ORIGIN = "https://bestsauna.ca";
 const SECRET = "test-only-rate-limit-secret-with-more-than-32-characters";
@@ -58,7 +63,7 @@ test("a successful French enquiry is committed with a reference and private oper
   assert.equal(response.status, 201);
   assert.equal(response.headers.get("Cache-Control"), "no-store");
   const result = await response.json();
-  assert.deepEqual(Object.keys(result).sort(), ["ok", "reference"]);
+  assert.deepEqual(Object.keys(result).sort(), ["notification", "ok", "reference"]);
   assert.equal(result.ok, true);
   assert.match(result.reference, /^BS-20261116-[A-F0-9]{12}$/);
   const saved = store.sqlite.prepare("SELECT * FROM quote_enquiries").get();
@@ -193,4 +198,255 @@ test("SQL-looking user text is stored as data and cleanup failures cannot undo c
   assert.equal(response.status, 201);
   assert.equal(store.count(), 1);
   assert.equal(store.sqlite.prepare("SELECT message FROM quote_enquiries").get().message, message);
+});
+
+function notificationEnvironment(store) { return { ...environment(store), QUOTE_EMAIL_ENABLED: "true" }; }
+const acceptedByFormspree = () => new Response(JSON.stringify({ ok: true, next: '/thanks' }), { status: 200 });
+
+test("delivery-planning responsibilities are stored and included in one mocked notification", async t => {
+  const store = database(t);
+  const plan = readServicePlan({ service: "managed", use: "cottage", placement: "outdoor", access: "remote", preparation: "arranged", handling: "request", connections: "unsure" });
+  const message = servicePlanMessage(plan, "fr");
+  const data = payload({ message, sourcePath: "/fr/livraison-installation/", intendedUse: plan.use, placement: plan.placement, service: plan.service, heat: "unsure", interest: "unsure" });
+  const sent = [];
+  const transport = async (_url, init) => { sent.push(JSON.parse(init.body)); return acceptedByFormspree(); };
+  const response = await handleQuoteRequest(request(data), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(response.status, 201); assert.equal(store.count(), 1); assert.equal(sent.length, 1);
+  const saved = store.sqlite.prepare("SELECT message, source_path, service FROM quote_enquiries").get();
+  assert.equal(saved.message, message); assert.equal(saved.source_path, data.sourcePath); assert.equal(saved.service, "managed");
+  assert.ok(sent[0].message.includes(message));
+});
+
+test("model context is saved and included in the mocked notification without new database fields", async t => {
+  const store = database(t);
+  const [product] = publishedProducts([catalogueFixture()], "2026-11-16");
+  const message = productQuoteMessage(product, "fr");
+  const data = payload({ message, sourcePath: product.paths.fr, interest: product.category, placement: product.placement, heat: product.heat });
+  let notification;
+  const transport = async (_url, init) => { notification = JSON.parse(init.body); return acceptedByFormspree(); };
+  const response = await handleQuoteRequest(request(data), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(response.status, 201);
+  const saved = store.sqlite.prepare("SELECT message, source_path FROM quote_enquiries").get();
+  assert.equal(saved.message, message); assert.equal(saved.source_path, product.paths.fr);
+  assert.ok(notification.message.includes(message));
+  assert.ok(notification.message.includes(product.paths.fr));
+});
+
+test("a three-model comparison is saved and sent through the mocked notification as one enquiry", async t => {
+  const store = database(t);
+  const products = publishedProducts(["internal-qa-a", "internal-qa-b", "internal-qa-c"].map(catalogueFixture), "2026-11-16");
+  const message = modelQuoteMessage(products, "fr");
+  const data = payload({ message, sourcePath: "/fr/comparer-les-saunas/", heat: "unsure", interest: "unsure", placement: "unsure" });
+  const sent = [];
+  const transport = async (_url, init) => { sent.push(JSON.parse(init.body)); return acceptedByFormspree(); };
+  const response = await handleQuoteRequest(request(data), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(response.status, 201); assert.equal(store.count(), 1); assert.equal(sent.length, 1);
+  assert.equal(store.sqlite.prepare("SELECT message FROM quote_enquiries").get().message, message);
+  for (const product of products) assert.ok(sent[0].message.includes(product.id));
+});
+
+test("Formspree receives one committed, readable quotation with reply-to and reference", async t => {
+  const store = database(t);
+  const calls = [];
+  const transport = async (url, init) => {
+    assert.equal(store.count(), 1, "save before notifying");
+    calls.push({ url, init });
+    return acceptedByFormspree();
+  };
+  const key = crypto.randomUUID();
+  const data = payload({ intendedUse: "commercial", commercialDetails: "Hôtel — quatre utilisateurs", message: "Un sauna, merci.", budget: "20,000", heat: "electric", contactMethod: "phone", phone: "4165550100" });
+  const result = await (await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport)).json();
+  assert.equal(result.notification, "accepted");
+  const retry = await (await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport)).json();
+  assert.equal(retry.reference, result.reference);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://formspree.io/f/mljbjqwy");
+  assert.equal(calls[0].init.headers.Accept, "application/json");
+  assert.equal(calls[0].init.redirect, "manual");
+  assert.equal(calls[0].init.headers.Origin, ORIGIN);
+  assert.equal(calls[0].init.headers.Referer, `${ORIGIN}${data.sourcePath}`);
+  assert.deepEqual(Object.keys(calls[0].init.headers).sort(), ["Accept", "Content-Type", "Origin", "Referer"]);
+  const outgoing = JSON.parse(calls[0].init.body);
+  assert.equal(outgoing.email, data.email);
+  assert.equal(outgoing.reference, result.reference);
+  assert.equal(outgoing.language, "French / Français");
+  assert.match(outgoing.subject, /New quote request BS-/);
+  assert.match(outgoing.message, /Supply, delivery & assembly/);
+  assert.match(outgoing.message, /Hôtel — quatre utilisateurs/);
+  assert.match(outgoing.message, /Reply preference: Phone/);
+  assert.match(outgoing.message, /Privacy notice acknowledged: 2026-11-17.2/);
+  assert.doesNotMatch(calls[0].init.body, /192\.0\.2\.10|payload_hash|idempotency_key|rate_limit/);
+  const saved = store.sqlite.prepare('SELECT notification_status, notification_accepted_at, notification_error FROM quote_enquiries').get();
+  assert.equal(saved.notification_status, 'accepted');
+  assert.equal(saved.notification_accepted_at, new Date(NOW).toISOString());
+  assert.equal(saved.notification_error, null);
+});
+
+test("simultaneous retries claim only one external notification", async t => {
+  const store = database(t);
+  const key = crypto.randomUUID();
+  let calls = 0;
+  let finish;
+  const transport = async () => { calls++; await new Promise(resolve => { finish = resolve; }); return acceptedByFormspree(); };
+  const first = handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+  // Wait for the first transport to hold the database claim.
+  while (!finish) await new Promise(resolve => setImmediate(resolve));
+  const other = await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal((await other.json()).notification, 'sending');
+  finish();
+  assert.equal((await (await first).json()).notification, 'accepted');
+  assert.equal(calls, 1);
+  assert.equal(store.count(), 1);
+});
+
+test("provider rejection or an uncertain response preserves the enquiry and never blindly resends", async t => {
+  for (const [response, state, code] of [
+    [() => new Response('', { status: 307, headers: { Location: 'https://example.com/unexpected' } }), 'failed', 'provider_redirect'],
+    [() => new Response('{}', { status: 422 }), 'failed', 'provider_rejected'],
+    [() => new Response('{}', { status: 429 }), 'failed', 'provider_rate_limit'],
+    [() => new Response('{}', { status: 503 }), 'unknown', 'provider_unavailable'],
+    [() => new Response(JSON.stringify({ ok: false })), 'unknown', 'unexpected_response'],
+    [() => new Response('<html>not JSON</html>'), 'unknown', 'unexpected_response'],
+    [() => { throw new DOMException('private upstream data', 'AbortError'); }, 'unknown', 'network_or_timeout'],
+  ]) {
+    const store = database(t);
+    let calls = 0;
+    const transport = async () => { calls++; return response(); };
+    const key = crypto.randomUUID();
+    const first = await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal(first.status, 201);
+    const body = await first.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.notification, state);
+    assert.equal(store.count(), 1);
+    assert.equal(store.sqlite.prepare('SELECT notification_error FROM quote_enquiries').get().notification_error, code);
+    await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal(calls, 1);
+    assert.doesNotMatch(JSON.stringify(body), /private upstream/);
+  }
+});
+
+test("an outcome-write failure cannot erase the save or send a duplicate", async t => {
+  const store = database(t);
+  const env = { ...notificationEnvironment(store), DB: { prepare(sql) {
+    if (sql.includes('SET notification_status = ?')) throw new Error('database offline');
+    return store.DB.prepare(sql);
+  } } };
+  let calls = 0;
+  const transport = async () => { calls++; return acceptedByFormspree(); };
+  const key = crypto.randomUUID();
+  const first = await handleQuoteRequest(request(payload(), { key }), env, () => NOW, transport);
+  assert.equal(first.status, 201);
+  assert.equal((await first.json()).notification, 'unknown');
+  await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(calls, 1);
+  assert.equal(store.count(), 1);
+  assert.equal(store.sqlite.prepare('SELECT notification_status FROM quote_enquiries').get().notification_status, 'sending');
+});
+
+test("disabled notifications, old enquiries and invalid submissions never contact Formspree", async t => {
+  const store = database(t);
+  let calls = 0;
+  const transport = async () => { calls++; return acceptedByFormspree(); };
+  const key = crypto.randomUUID();
+  const old = await handleQuoteRequest(request(payload(), { key }), environment(store), () => NOW, transport);
+  assert.equal((await old.json()).notification, 'not_requested');
+  const replay = await handleQuoteRequest(request(payload(), { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal((await replay.json()).notification, 'not_requested');
+  const invalid = await handleQuoteRequest(request(payload({ website: 'bot' })), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(invalid.status, 422);
+  assert.equal(calls, 0);
+});
+
+test("an unresponsive notification is aborted at its deadline without losing the saved request", async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const store = database(t);
+  let signal;
+  const transport = async (_url, init) => {
+    signal = init.signal;
+    return new Promise((_resolve, reject) => signal.addEventListener('abort', () => reject(new DOMException('Timed out', 'AbortError')), { once: true }));
+  };
+  const pending = handleQuoteRequest(request(), notificationEnvironment(store), () => NOW, transport);
+  while (!signal) await new Promise(resolve => setImmediate(resolve));
+  t.mock.timers.tick(NOTIFICATION_TIMEOUT_MS);
+  const result = await pending;
+  assert.equal(signal.aborted, true);
+  assert.equal(result.status, 201);
+  assert.equal((await result.json()).notification, 'unknown');
+  assert.equal(store.count(), 1);
+});
+
+test("a failed enquiry insert never triggers an email even when notifications are enabled", async t => {
+  const store = database(t);
+  const env = { ...notificationEnvironment(store), DB: { prepare(sql) {
+    if (sql.includes('INSERT INTO quote_enquiries')) throw new Error('database offline');
+    return store.DB.prepare(sql);
+  } } };
+  let calls = 0;
+  const response = await handleQuoteRequest(request(), env, () => NOW, async () => { calls++; return acceptedByFormspree(); });
+  assert.equal(response.status, 503);
+  assert.equal(calls, 0);
+  assert.equal(store.count(), 0);
+});
+
+test('structured commercial briefs are validated, saved and notified once in both languages', async t => {
+  const store = database(t);
+  for (const language of ['en', 'fr']) {
+    const calls = [];
+    const key = crypto.randomUUID();
+    const data = payload({ intendedUse: 'commercial', language, commercialBriefVersion: 1,
+      commercialFacility: 'hotel', commercialStage: 'replacement', commercialUsage: 'Guests only',
+      commercialHours: '7 h–21 h', commercialEquipment: 'Existing heater model to follow',
+      commercialProcurement: 'Facilities manager; approval in December', commercialDetails: 'Operating documents required' });
+    const transport = async (_, init) => { calls.push(JSON.parse(init.body)); return acceptedByFormspree(); };
+    const response = await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal(response.status, 201);
+    const result = await response.json();
+    const saved = store.sqlite.prepare('SELECT commercial_details FROM quote_enquiries WHERE reference = ?').get(result.reference);
+    for (const value of ['Guests only', '7 h–21 h', 'Existing heater model to follow', 'Facilities manager; approval in December', 'Operating documents required']) assert.ok(saved.commercial_details.includes(value));
+    assert.match(saved.commercial_details, language === 'fr' ? /Type d’établissement: Hôtel/ : /Facility type: Hotel/);
+    assert.ok(calls[0].message.includes(saved.commercial_details));
+    const retry = await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal((await retry.json()).reference, result.reference);
+    assert.equal(calls.length, 1);
+    const changed = await handleQuoteRequest(request({ ...data, commercialHours: '24 hours' }, { key }), notificationEnvironment(store), () => NOW, transport);
+    assert.equal(changed.status, 409);
+  }
+});
+
+test('invalid commercial details fail before storage; hidden residential details are omitted', async t => {
+  const store = database(t);
+  for (const [overrides, field, error] of [
+    [{ commercialFacility: 'fake' }, 'commercialFacility', 'invalid'],
+    [{ commercialStage: '' }, 'commercialStage', 'required'],
+    [{ commercialEquipment: 'x'.repeat(401) }, 'commercialEquipment', 'too_long'],
+    [{ commercialBriefVersion: 2 }, 'commercialFacility', 'invalid'],
+  ]) {
+    const response = await submit(store, payload({ intendedUse: 'commercial', commercialBriefVersion: 1, commercialFacility: 'hotel', commercialStage: 'new', ...overrides }));
+    assert.equal(response.status, 422);
+    assert.equal((await response.json()).fields[field], error);
+    assert.equal(store.count(), 0);
+  }
+  const response = await submit(store, payload({ intendedUse: 'home', commercialBriefVersion: 1, commercialDetails: 'DO NOT SEND', commercialFacility: 'hotel', commercialHours: 'PRIVATE HIDDEN VALUE' }));
+  assert.equal(response.status, 201);
+  assert.equal(store.sqlite.prepare('SELECT commercial_details FROM quote_enquiries').get().commercial_details, '');
+});
+
+test('destination brief remains intact in saved intake and its single notification', async t => {
+  const store = database(t);
+  const message = coveragePlanMessage({ region: 'NU', service: 'supply', access: 'transfer' }, 'fr') + '\nLOCAL QA — receiving contact to confirm';
+  const data = payload({ interest: 'unsure', service: 'supply', message, sourcePath: '/fr/regions-desservies/' });
+  const key = crypto.randomUUID();
+  const calls = [];
+  const transport = async (_, init) => { calls.push(JSON.parse(init.body)); return acceptedByFormspree(); };
+  const response = await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(response.status, 201);
+  const result = await response.json();
+  const saved = store.sqlite.prepare('SELECT message, source_path FROM quote_enquiries WHERE reference=?').get(result.reference);
+  assert.equal(saved.message, message);
+  assert.equal(saved.source_path, '/fr/regions-desservies/');
+  assert.ok(calls[0].message.includes(message));
+  const retry = await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal((await retry.json()).reference, result.reference);
+  assert.equal(calls.length, 1);
 });

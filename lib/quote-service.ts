@@ -1,7 +1,11 @@
-/** Private quotation intake. Success means committed storage, never email delivery. */
+import { normalizeCommercialBrief } from "./commercial-brief.ts";
+import { cleanupMeasurement, measurementOptOut, normalizeMeasurementContext, recordMeasurement } from "./measurement-service.ts";
+/** Private quotation intake. Database acceptance and notification acceptance are separate. */
 export const MAX_QUOTE_BODY_BYTES = 16 * 1024;
 export const QUOTE_RATE_LIMIT = 5;
-export const PRIVACY_NOTICE_VERSION = "2026-11-16";
+export const PRIVACY_NOTICE_VERSION = "2026-11-17.2";
+export const FORMSPREE_ENDPOINT = "https://formspree.io/f/mljbjqwy";
+export const NOTIFICATION_TIMEOUT_MS = 8000;
 
 const VALUES = {
   intendedUse: ["home", "cottage", "commercial"],
@@ -25,8 +29,23 @@ export interface QuoteDatabase {
 export interface QuoteEnvironment {
   DB?: QuoteDatabase;
   RATE_LIMIT_SECRET?: string;
+  QUOTE_EMAIL_ENABLED?: string;
+  MEASUREMENT_ENABLED?: string;
+  /** Node HTTP socket context; null deliberately disables header fallbacks. */
+  CLIENT_IP?: string | null;
+  /** Public origin when a Node reverse proxy reconstructs an internal URL. */
+  SITE_ORIGIN?: string;
 }
 interface SavedKey { reference: string; payload_hash: string }
+type NotificationStatus = "not_requested" | "pending" | "sending" | "accepted" | "failed" | "unknown";
+type NotificationTransport = (url: string, init: RequestInit) => Promise<Response>;
+interface NotificationRow {
+  reference: string; created_at: string; name: string; email: string; phone: string; location: string;
+  intended_use: string; placement: string; interest: string; service: string; timeframe: string;
+  contact_method: string; capacity: string; heat: string; budget: string; message: string;
+  commercial_details: string; language: string; source_path: string; privacy_version: string;
+  notification_status: NotificationStatus;
+}
 type FieldErrors = Record<string, string>;
 
 function json(body: Record<string, unknown>, status: number, extraHeaders: Record<string, string> = {}) {
@@ -97,6 +116,18 @@ function validate(raw: unknown) {
     privacyAccepted: input.privacyAccepted === true,
   };
 
+  // Preserve legacy requests from already-open forms. New forms explicitly opt in
+  // to server-validated structured intake; the existing private text column and
+  // notification formatter retain the complete localized brief.
+  if (input.commercialBriefVersion !== undefined && input.commercialBriefVersion !== 1) fields.commercialFacility = "invalid";
+  if (data.intendedUse === "commercial" && input.commercialBriefVersion === 1) {
+    const brief = normalizeCommercialBrief(input, data.language);
+    Object.assign(fields, brief.errors);
+    data.commercialDetails = brief.text;
+  } else if (data.intendedUse !== "commercial") {
+    data.commercialDetails = "";
+  }
+
   if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) fields.email = "invalid";
   if (data.phone && (!/^[+\d\s().xext#-]+$/i.test(data.phone) || data.phone.replace(/\D/g, "").length < 7)) fields.phone = "invalid";
   if (data.contactMethod === "phone" && !data.phone) fields.phone = "required";
@@ -149,7 +180,11 @@ async function rateKey(ip: string, hour: number, secret: string) {
   return hex(await crypto.subtle.sign("HMAC", key, encoder.encode(`${hour}:${ip}`)));
 }
 
-function clientIp(request: Request) {
+function clientIp(request: Request, environment: QuoteEnvironment) {
+  if (environment.CLIENT_IP !== undefined) {
+    const address = environment.CLIENT_IP;
+    return address && address.length <= 64 && /^[a-f\d:.]+$/i.test(address) ? address : null;
+  }
   const trustedIp = request.headers.get("CF-Connecting-IP");
   if (trustedIp && trustedIp.length <= 64 && /^[a-f\d:.]+$/i.test(trustedIp)) return trustedIp;
   // A local-only fallback makes preview testing possible without trusting forwarded headers.
@@ -158,15 +193,97 @@ function clientIp(request: Request) {
   return null;
 }
 
-function replay(row: SavedKey, payloadHash: string) {
-  return row.payload_hash === payloadHash
-    ? json({ ok: true, reference: row.reference }, 200)
-    : error("conflict", 409);
+const NOTIFICATION_COLUMNS = `reference, created_at, name, email, phone, location,
+  intended_use, placement, interest, service, timeframe, contact_method, capacity, heat, budget,
+  message, commercial_details, language, source_path, privacy_version, notification_status`;
+
+function notificationPayload(row: NotificationRow) {
+  const labels: Record<string, string> = {
+    home: "Home", cottage: "Cottage", commercial: "Commercial / hospitality",
+    indoor: "Indoor", outdoor: "Outdoor", infrared: "Infrared", heaters: "Heater / accessories",
+    supply: "Supply & delivery", assembly: "Supply, delivery & assembly", managed: "Managed installation project",
+    unsure: "Help choosing / to be confirmed", soon: "As soon as practical", "three-six": "Within 3–6 months",
+    "six-plus": "More than 6 months", exploring: "Exploring options", email: "Email", phone: "Phone",
+    electric: "Traditional electric", wood: "Wood-fired",
+  };
+  const choice = (value: string) => labels[value] || value || "Not specified";
+  return {
+    subject: `[BestSauna.ca] New quote request ${row.reference}`,
+    name: row.name, email: row.email, phone: row.phone,
+    reference: row.reference,
+    language: row.language === "fr" ? "French / Français" : "English",
+    message: [
+      `Reference: ${row.reference}`, `Received (UTC): ${row.created_at}`,
+      `Reply preference: ${choice(row.contact_method)}`, `Location: ${row.location}`,
+      `Project: ${choice(row.intended_use)}`, `Setting: ${choice(row.placement)}`,
+      `Sauna interest: ${choice(row.interest)}`, `Service: ${choice(row.service)}`,
+      `Timing: ${choice(row.timeframe)}`, `Capacity: ${row.capacity || "Not specified"}`,
+      `Heat: ${choice(row.heat)}`, `Budget (CAD): ${row.budget || "Not specified"}`,
+      "", "Customer message:", row.message || "No additional message.",
+      ...(row.intended_use === "commercial" && row.commercial_details ? ["", "Commercial details:", row.commercial_details] : []),
+      "", `Source page: ${row.source_path}`, `Privacy notice acknowledged: ${row.privacy_version}`,
+    ].join("\n"),
+  };
 }
 
-export async function handleQuoteRequest(request: Request, environment: QuoteEnvironment, now: () => number = Date.now): Promise<Response> {
+/** Claim once before contacting Formspree. Uncertain outcomes must not trigger duplicate emails. */
+async function notifyQuote(DB: QuoteDatabase, reference: string, now: () => number, transport: NotificationTransport, enabled: boolean, sourceOrigin: string): Promise<NotificationStatus> {
+  if (!enabled) return "not_requested";
+  try {
+    const row = await DB.prepare(`UPDATE quote_enquiries
+      SET notification_status = 'sending', notification_attempted_at = ?, notification_error = NULL
+      WHERE reference = ? AND notification_status = 'pending'
+      RETURNING ${NOTIFICATION_COLUMNS}`).bind(new Date(now()).toISOString(), reference).first<NotificationRow>();
+    if (!row) {
+      const existing = await DB.prepare("SELECT notification_status FROM quote_enquiries WHERE reference = ?").bind(reference).first<{ notification_status: NotificationStatus }>();
+      return existing?.notification_status || "unknown";
+    }
+
+    let status: NotificationStatus = "unknown";
+    let code: string | null = "network_or_timeout";
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), NOTIFICATION_TIMEOUT_MS);
+    try {
+      const response = await transport(FORMSPREE_ENDPOINT, {
+        // Workers supports manual/follow, not the browser's "error" redirect mode.
+        // Never forward customer details to a redirect destination.
+        method: "POST", redirect: "manual", headers: {
+          "Content-Type": "application/json", Accept: "application/json",
+          Origin: sourceOrigin, Referer: new URL(row.source_path, sourceOrigin).href,
+        },
+        body: JSON.stringify(notificationPayload(row)), signal: controller.signal,
+      });
+      if (response.ok) {
+        code = "unexpected_response";
+        const result = await response.json() as { ok?: boolean };
+        if (result?.ok === true) { status = "accepted"; code = null; }
+        else { code = "unexpected_response"; }
+      } else if (response.status >= 300 && response.status < 400) {
+        status = "failed"; code = "provider_redirect";
+      } else if (response.status >= 400 && response.status < 500) {
+        status = "failed"; code = response.status === 429 ? "provider_rate_limit" : "provider_rejected";
+      } else { code = "provider_unavailable"; }
+    } catch { /* Keep only a fixed code, never provider messages or contact details. */ }
+    finally { clearTimeout(timer); }
+
+    // Failure to record the outcome leaves the durable 'sending' claim in place.
+    // A retry must not send a second notification after a possibly accepted request.
+    await DB.prepare(`UPDATE quote_enquiries SET notification_status = ?, notification_accepted_at = ?, notification_error = ?
+      WHERE reference = ? AND notification_status = 'sending'`).bind(status, status === "accepted" ? new Date(now()).toISOString() : null, code, reference).run();
+    return status;
+  } catch { return "unknown"; }
+}
+
+async function savedResponse(DB: QuoteDatabase, row: SavedKey, payloadHash: string, status: number, now: () => number, transport: NotificationTransport, enabled: boolean, sourceOrigin: string) {
+  if (row.payload_hash !== payloadHash) return error("conflict", 409);
+  const notification = await notifyQuote(DB, row.reference, now, transport, enabled, sourceOrigin);
+  return json({ ok: true, reference: row.reference, notification }, status);
+}
+
+export async function handleQuoteRequest(request: Request, environment: QuoteEnvironment, now: () => number = Date.now, transport: NotificationTransport = fetch): Promise<Response> {
   if (request.method !== "POST") return error("method", 405, { Allow: "POST" });
-  if (request.headers.get("Origin") !== new URL(request.url).origin) return error("origin", 403);
+  const sourceOrigin = environment.SITE_ORIGIN || new URL(request.url).origin;
+  if (request.headers.get("Origin") !== sourceOrigin) return error("origin", 403);
   if (request.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== "application/json") return error("content_type", 415);
   const idempotencyKey = request.headers.get("Idempotency-Key")?.toLowerCase() ?? "";
   if (!/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/.test(idempotencyKey)) return error("idempotency", 400);
@@ -177,13 +294,13 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
   if (Object.keys(validated.fields).length || !validated.data) return json({ ok: false, error: "validation", fields: validated.fields }, 422);
   const data = validated.data;
   const { DB, RATE_LIMIT_SECRET } = environment;
-  const ip = clientIp(request);
+  const ip = clientIp(request, environment);
   if (!DB || !RATE_LIMIT_SECRET || RATE_LIMIT_SECRET.length < 32 || !ip) return error("unavailable", 503);
 
   try {
     const payloadHash = await hashPayload(data);
     const previous = await DB.prepare("SELECT reference, payload_hash FROM quote_enquiries WHERE idempotency_key = ?").bind(idempotencyKey).first<SavedKey>();
-    if (previous) return replay(previous, payloadHash);
+    if (previous) return savedResponse(DB, previous, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin);
 
     const timestamp = now();
     const hour = Math.floor(timestamp / 3_600_000);
@@ -195,7 +312,7 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
       WHERE count < ? RETURNING count`).bind(bucketKey, expiresAt, QUOTE_RATE_LIMIT).first<{ count: number }>();
     if (!allowance) {
       const savedDuringRetry = await DB.prepare("SELECT reference, payload_hash FROM quote_enquiries WHERE idempotency_key = ?").bind(idempotencyKey).first<SavedKey>();
-      if (savedDuringRetry) return replay(savedDuringRetry, payloadHash);
+      if (savedDuringRetry) return savedResponse(DB, savedDuringRetry, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin);
       return error("rate_limit", 429, { "Retry-After": String(Math.max(1, expiresAt - Math.floor(timestamp / 1000))) });
     }
 
@@ -205,23 +322,33 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
     const saved = await DB.prepare(`INSERT INTO quote_enquiries (
       id, reference, idempotency_key, payload_hash, created_at, name, email, phone, location,
       intended_use, placement, interest, service, timeframe, contact_method, capacity, heat, budget,
-      message, commercial_details, language, source_path, privacy_accepted, privacy_version, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 'new')
+      message, commercial_details, language, source_path, privacy_accepted, privacy_version, status, notification_status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 'new', ?)
       ON CONFLICT(idempotency_key) DO NOTHING RETURNING reference, payload_hash`).bind(
       id, reference, idempotencyKey, payloadHash, createdAt, data.name, data.email, data.phone, data.location,
       data.intendedUse, data.placement, data.interest, data.service, data.timeframe, data.contactMethod,
       data.capacity, data.heat, data.budget, data.message, data.commercialDetails, data.language,
-      data.sourcePath, PRIVACY_NOTICE_VERSION,
+      data.sourcePath, PRIVACY_NOTICE_VERSION, environment.QUOTE_EMAIL_ENABLED === "true" ? "pending" : "not_requested",
     ).first<SavedKey>();
 
     if (!saved) {
       const competing = await DB.prepare("SELECT reference, payload_hash FROM quote_enquiries WHERE idempotency_key = ?").bind(idempotencyKey).first<SavedKey>();
-      return competing ? replay(competing, payloadHash) : error("unavailable", 503);
+      return competing ? savedResponse(DB, competing, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin) : error("unavailable", 503);
     }
+
+    // Count only a newly committed enquiry, never browser-claimed success or an idempotent retry.
+    // Measurement failure must not fail an otherwise valid enquiry or change notification delivery.
+    try {
+      const context = normalizeMeasurementContext((parsed.value as Record<string, unknown>).measurement);
+      if (environment.MEASUREMENT_ENABLED === "true" && context && !measurementOptOut(request)) {
+        await recordMeasurement(DB, { ...context, language: data.language }, "quote_saved", "", crypto.randomUUID(), timestamp);
+        await cleanupMeasurement(DB, timestamp);
+      }
+    } catch { /* Aggregate collection is best-effort, not an intake dependency. */ }
 
     // Best-effort expiry cleanup must never change a committed enquiry into a failed submission.
     try { await DB.prepare("DELETE FROM quote_rate_limits WHERE expires_at <= ?").bind(Math.floor(timestamp / 1000)).run(); } catch { /* Next accepted submission retries cleanup. */ }
-    return json({ ok: true, reference: saved.reference }, 201);
+    return savedResponse(DB, saved, payloadHash, 201, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin);
   } catch {
     // Do not expose provider traces or log names, emails, IPs or submission bodies.
     return error("unavailable", 503);

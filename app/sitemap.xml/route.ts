@@ -1,3 +1,9 @@
+import { getPublishedProducts } from "@/lib/published-catalogue";
+import { productPage } from "@/lib/product-catalogue";
 import { pages } from "@/content/site";
 import { siteSettings } from "@/lib/site-settings";
-export function GET(){const {origin,indexable}=siteSettings();const entries=indexable?pages.flatMap(p=>["en","fr"].map(lang=>`<url><loc>${origin}${p.paths[lang as "en"|"fr"]}</loc><xhtml:link rel="alternate" hreflang="en-CA" href="${origin}${p.paths.en}"/><xhtml:link rel="alternate" hreflang="fr-CA" href="${origin}${p.paths.fr}"/></url>`)).join(""):"";return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${entries}</urlset>`,{headers:{"Content-Type":"application/xml; charset=utf-8","Cache-Control":"public, max-age=300"}});}
+import { siteSitemap } from "@/lib/page-seo";
+export const dynamic = "force-dynamic";
+export function GET() {
+  return new Response(siteSitemap([...pages,...getPublishedProducts().map(productPage)],siteSettings()), { headers: { "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=300" } });
+}

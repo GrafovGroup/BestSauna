@@ -1,7 +1,11 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import { dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
 import { pages, pagePath } from "../content/site.ts";
+import { supportingImages } from "../content/editorial-images.ts";
+import { guideSummaries } from "../content/guide-summaries.ts";
+import { pageStructuredData } from "../lib/page-seo.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const publicRoot = resolve(root, "public");
@@ -12,6 +16,14 @@ const routes = new Map();
 const contentImages = new Set();
 const checkedAssets = new Set();
 const structuredTypes = new Set();
+const imageOwners = new Map();
+function ownImage(url, owner) {
+  check(Boolean(url), owner + " needs an editorial image.");
+  if (!url) return;
+  check(!imageOwners.has(url), owner + " repeats the image from " + imageOwners.get(url));
+  imageOwners.set(url, owner);
+  contentImages.add(url);
+}
 
 function check(condition, message) {
   if (!condition) errors.push(message);
@@ -69,6 +81,8 @@ async function sourceFiles(folder) {
 
 check(Array.isArray(pages) && pages.length > 0, "The content collection must contain pages.");
 for (const page of pages) {
+  ownImage(page.copy.en.image, page.key);
+  check(page.copy.en.image === page.copy.fr.image, page.key + " language versions must share their page image.");
   check(typeof page.key === "string" && page.key.length > 0, "A page is missing its key.");
   check(!keys.has(page.key), "Duplicate page key: " + page.key);
   keys.add(page.key);
@@ -82,6 +96,10 @@ for (const page of pages) {
     routes.set(path, label);
     check(pagePath(page.key, lang) === path, "Route helper mismatch: " + label);
     const copy = page.copy[lang];
+    if(page.kind === "guide") {
+      const summary = guideSummaries[page.key]?.[lang];
+      check(Boolean(summary?.question.trim() && summary?.answer.trim() && summary?.points.length === 3 && summary.points.every(p=>p.trim())), label + " needs a complete translated guide summary.");
+    }
     if (!copy) continue;
     for (const field of ["title", "description", "eyebrow", "heading", "intro"]) {
       check(typeof copy[field] === "string" && copy[field].trim().length > 0, label + " missing " + field);
@@ -112,7 +130,21 @@ for (const page of pages) {
     for (const key of related ?? []) check(keys.has(key), page.key + "/" + lang + " links to unknown page: " + key);
   }
 }
+for (const [key, image] of Object.entries(supportingImages)) {
+  ownImage(image.src, key);
+  check(Boolean(image.alt.en.trim() && image.alt.fr.trim()), key + " needs bilingual image descriptions.");
+}
 await Promise.all([...contentImages].flatMap((url) => [asset(url), asset(url.replace(/\.webp$/, "-800.webp"))]));
+const imageHashes = new Map();
+for (const url of contentImages) {
+  const path = assetFile(url);
+  if (!path) continue;
+  try {
+    const hash = createHash("sha256").update(await readFile(path)).digest("hex");
+    check(!imageHashes.has(hash), url + " duplicates the image bytes from " + imageHashes.get(hash));
+    imageHashes.set(hash, url);
+  } catch { /* Missing files are already reported by asset(). */ }
+}
 
 const manifestPath = await asset("/site.webmanifest");
 let manifest;
@@ -166,7 +198,7 @@ if (icoPath) {
 // These commercial schema types need verified offer, review or location evidence
 // before their publication guard is deliberately updated.
 const gatedTypes = new Set(["Product", "ProductGroup", "Offer", "AggregateOffer", "Review", "AggregateRating", "LocalBusiness", "Store"]);
-const files = (await Promise.all(["app", "components"].map((dir) => sourceFiles(resolve(root, dir))))).flat();
+const files = (await Promise.all(["app", "components", "lib"].map((dir) => sourceFiles(resolve(root, dir))))).flat();
 const typePattern = /["']@type["']\s*:\s*(?:["']([^"']+)["']|\[([^\]]*)\])/g;
 for (const file of files) {
   const code = await readFile(file, "utf8");
@@ -183,6 +215,18 @@ for (const file of files) {
   const staticAssets = [...code.matchAll(/["'](\/(?:brand|icons|images)\/[^"'\s]+|\/favicon\.ico|\/site\.webmanifest)["']/g)].map((match) => match[1]);
   for (const url of new Set(staticAssets)) if (!checkedAssets.has(url)) await asset(url);
 }
+// Inspect generated output too: dynamic type selection is not visible to a source regex.
+function checkSchema(value) {
+  if (!value || typeof value !== "object") return;
+  for (const [key, item] of Object.entries(value)) {
+    if (key === "@type") for (const type of Array.isArray(item) ? item : [item]) {
+      structuredTypes.add(type);
+      check(!gatedTypes.has(type), "Evidence-gated " + type + " found in generated structured data.");
+    }
+    if (item && typeof item === "object") checkSchema(item);
+  }
+}
+for (const page of pages) for (const lang of languages) checkSchema(pageStructuredData(page,lang,"https://bestsauna.dimagrafov.chatgpt.site",pages,guideSummaries[page.key]?.[lang]));
 check(structuredTypes.has("Organization") && structuredTypes.has("WebSite"), "Base Organization/WebSite structured data is missing from application source.");
 
 if (errors.length) {
