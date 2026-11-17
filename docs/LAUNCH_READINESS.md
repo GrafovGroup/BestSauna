@@ -28,7 +28,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |
 | Public launch | Completed on WHC at https://bestsauna.ca on 2026-11-16 (Toronto). HTTPS, 40 routes, 74 images and quote persistence verified. Google sitemap success: 40 discovered pages. Bing submission accepted and processing. |
 
-The owner selected and authorized migration onto existing WHC hosting. Release `3d2fcf1ea9244fa5a6da44622203138d2e4c421c` is public; the Sites review copy remains private. Only the web A record changed, plus Google/Bing ownership records. Existing mail and nameserver records were preserved. See `WHC_HOSTING.md` and the dated `VALIDATION.md` record.
+The owner selected and authorized migration onto existing WHC hosting. Release `6aa93203c4b5a0d3b695a8f1eb5334ccdcb7b5b1` is public; the Sites review copy remains private. Only the web A record changed, plus Google/Bing ownership records. Existing mail and nameserver records were preserved. See `WHC_HOSTING.md` and the dated `VALIDATION.md` record.
 
 ## Owner/provider inputs still required
 
