@@ -20,7 +20,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | Quotation intake | Validation, review-before-send, temporary drafts, D1 persistence and tracked Formspree notifications implemented. Inbox operations remain a launch dependency below. |
 | Sauna comparison | Two- or three-approach comparison, project/service context, mobile cards and bilingual quote handoff implemented. |
 | Buying guides and search foundations | Bilingual summaries, section navigation, article/page/collection structured data, matching breadcrumbs and reciprocal language sitemap entries implemented. Indexing remains disabled for private review. |
-| Real product catalogue | Not implemented. A draft/approved publication model can be prepared next; publishing real listings requires the supplier/model evidence below. |
+| Real product catalogue | Source-managed bilingual records, draft/published/archived checks, catalogue cards, detail pages, metadata and quote handoff implemented. No real records are published; supplier/model evidence below is still required. See `PRODUCT_CATALOGUE.md`. |
 | Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |
 | Public launch | Pending the owner/provider inputs and deployment checks below. |
 

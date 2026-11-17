@@ -4,6 +4,8 @@ import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { handleQuoteRequest, MAX_QUOTE_BODY_BYTES, NOTIFICATION_TIMEOUT_MS } from "../lib/quote-service.ts";
+import { publishedProducts, productQuoteMessage } from "../lib/product-catalogue.ts";
+import { catalogueFixture } from "./fixtures/catalogue.mjs";
 
 const ORIGIN = "https://bestsauna.ca";
 const SECRET = "test-only-rate-limit-secret-with-more-than-32-characters";
@@ -197,6 +199,21 @@ test("SQL-looking user text is stored as data and cleanup failures cannot undo c
 
 function notificationEnvironment(store) { return { ...environment(store), QUOTE_EMAIL_ENABLED: "true" }; }
 const acceptedByFormspree = () => new Response(JSON.stringify({ ok: true, next: '/thanks' }), { status: 200 });
+
+test("model context is saved and included in the mocked notification without new database fields", async t => {
+  const store = database(t);
+  const [product] = publishedProducts([catalogueFixture()], "2026-11-16");
+  const message = productQuoteMessage(product, "fr");
+  const data = payload({ message, sourcePath: product.paths.fr, interest: product.category, placement: product.placement, heat: product.heat });
+  let notification;
+  const transport = async (_url, init) => { notification = JSON.parse(init.body); return acceptedByFormspree(); };
+  const response = await handleQuoteRequest(request(data), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(response.status, 201);
+  const saved = store.sqlite.prepare("SELECT message, source_path FROM quote_enquiries").get();
+  assert.equal(saved.message, message); assert.equal(saved.source_path, product.paths.fr);
+  assert.ok(notification.message.includes(message));
+  assert.ok(notification.message.includes(product.paths.fr));
+});
 
 test("Formspree receives one committed, readable quotation with reply-to and reference", async t => {
   const store = database(t);

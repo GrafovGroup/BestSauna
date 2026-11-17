@@ -1,0 +1,127 @@
+{
+  "id": "replace-with-stable-model-id",
+  "status": "draft",
+  "details": {
+    "manufacturer": "",
+    "model": "",
+    "category": "",
+    "placement": "",
+    "heat": "",
+    "uses": [],
+    "pricing": "quotation-only",
+    "image": {
+      "src": "",
+      "width": 0,
+      "height": 0,
+      "alt": {
+        "en": "",
+        "fr": ""
+      }
+    },
+    "manual": {
+      "url": "",
+      "version": ""
+    },
+    "copy": {
+      "en": {
+        "name": "",
+        "slug": "",
+        "title": "",
+        "description": "",
+        "intro": "",
+        "configuration": "",
+        "specifications": {
+          "dimensions": "",
+          "seating": "",
+          "materials": "",
+          "heaterControls": "",
+          "connections": "",
+          "requiredComponents": "",
+          "installation": ""
+        },
+        "included": [],
+        "excluded": [],
+        "delivery": "",
+        "orderTerms": "",
+        "leadTime": "",
+        "availability": "",
+        "warranty": "",
+        "permittedUse": ""
+      },
+      "fr": {
+        "name": "",
+        "slug": "",
+        "title": "",
+        "description": "",
+        "intro": "",
+        "configuration": "",
+        "specifications": {
+          "dimensions": "",
+          "seating": "",
+          "materials": "",
+          "heaterControls": "",
+          "connections": "",
+          "requiredComponents": "",
+          "installation": ""
+        },
+        "included": [],
+        "excluded": [],
+        "delivery": "",
+        "orderTerms": "",
+        "leadTime": "",
+        "availability": "",
+        "warranty": "",
+        "permittedUse": ""
+      }
+    }
+  },
+  "approval": {
+    "approvedBy": "",
+    "approvedAt": "",
+    "reviewBy": "",
+    "evidence": {
+      "identity": {
+        "source": "",
+        "version": "",
+        "verifiedAt": "",
+        "verifiedBy": ""
+      },
+      "imageAndCopyRights": {
+        "source": "",
+        "version": "",
+        "verifiedAt": "",
+        "verifiedBy": ""
+      },
+      "specifications": {
+        "source": "",
+        "version": "",
+        "verifiedAt": "",
+        "verifiedBy": ""
+      },
+      "scope": {
+        "source": "",
+        "version": "",
+        "verifiedAt": "",
+        "verifiedBy": ""
+      },
+      "commercialTerms": {
+        "source": "",
+        "version": "",
+        "verifiedAt": "",
+        "verifiedBy": ""
+      },
+      "warrantyAndUse": {
+        "source": "",
+        "version": "",
+        "verifiedAt": "",
+        "verifiedBy": ""
+      },
+      "translations": {
+        "source": "",
+        "version": "",
+        "verifiedAt": "",
+        "verifiedBy": ""
+      }
+    }
+  }
+}
