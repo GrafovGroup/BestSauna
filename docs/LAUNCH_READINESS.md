@@ -21,6 +21,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | Sauna comparison | Two- or three-approach comparison plus approved-model comparison, project/service context, responsive layouts and bilingual shortlist quote handoff implemented. Model comparison appears when two eligible catalogue records exist. |
 | Buying guides and search foundations | Bilingual summaries, section navigation, article/page/collection structured data, matching breadcrumbs and reciprocal language sitemap entries implemented. Indexing remains disabled for private review. |
 | Real product catalogue | Source-managed bilingual records, draft/published/archived checks, catalogue cards, detail pages, metadata and quote handoff implemented. No real records are published; supplier/model evidence below is still required. See `PRODUCT_CATALOGUE.md`. |
+| Delivery and installation planner | Bilingual service selection, access/readiness checklist, responsibility summary and quote handoff implemented. Requested work and service availability remain subject to the written quotation. |
 | Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |
 | Public launch | Pending the owner/provider inputs and deployment checks below. |
 

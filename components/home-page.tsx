@@ -1,3 +1,4 @@
+import { readServicePlan, servicePlanQuery } from "@/lib/service-planner";
 import { pagePath, pages, type Lang } from "@/content/site";
 import { SaunaFinder } from "./sauna-finder";
 
@@ -11,7 +12,7 @@ export function CategoryCards({lang,keys=["outdoor","indoor","infrared"]}:{lang:
   return <div className="category-grid">{keys.map(key=>{const p=pages.find(x=>x.key===key)!;const c=p.copy[lang];return <a key={key} href={p.paths[lang]} className="category-card"><div className="category-image"><EditorialImage src={c.image} alt={c.imageAlt}/><span>{lang==="fr"?"DÉCOUVRIR":"EXPLORE"}</span></div><div className="category-copy"><h3>{c.eyebrow}</h3><p>{captions[key]?.[lang]||c.intro}</p></div></a>;})}</div>;
 }
 
-export function ServiceCards({lang,sourceKey="installation"}:{lang:Lang;sourceKey?:string}){
+export function ServiceCards({lang,sourceKey="installation",planFirst=false}:{lang:Lang;sourceKey?:string;planFirst?:boolean}){
   const fr=lang==="fr";
   const items=fr?[
     {title:"Fourniture et livraison",lead:"Votre équipement, avec une livraison définie.",list:["Configuration détaillée du sauna","Mode et point de livraison précisés","Documents et suivi de la commande"],foot:"Déchargement, placement et assemblage à préciser.",id:"supply"},
@@ -22,7 +23,7 @@ export function ServiceCards({lang,sourceKey="installation"}:{lang:Lang;sourceKe
     {title:"Delivery & assembly",lead:"Support to put your sauna together.",list:["Agreed equipment supply and delivery","A review of site readiness","Assembly of the kit within the agreed scope"],foot:"Base preparation and specialist connections are separate.",id:"assembly"},
     {title:"Managed installation",lead:"A coordinated scope built around your site.",list:["Project assessment and final configuration","Coordination of stages and appointed trades","Documented responsibilities and exclusions"],foot:"Your written quotation defines exactly what is included.",id:"managed"}
   ];
-  return <><div className="service-grid">{items.map((item,i)=><article className="service-card" key={item.id}><span className="service-number">0{i+1}</span><h3>{item.title}</h3><p className="service-lead">{item.lead}</p><ul>{item.list.map(x=><li key={x}>{x}</li>)}</ul><p className="service-foot">{item.foot}</p><a href={`${pagePath("quote",lang)}?service=${item.id}&source=${encodeURIComponent(pagePath(sourceKey,lang))}`} className="text-link">{fr?"DISCUTER DE CETTE OPTION":"DISCUSS THIS OPTION"}</a></article>)}</div><p className="section-note">{fr?"Les services d’assemblage et d’installation dépendent de votre emplacement, du produit et de la disponibilité des partenaires.":"Assembly and installation services depend on your location, the product, and confirmed partner availability."}</p></>;
+  return <><div className="service-grid">{items.map((item,i)=><article className="service-card" key={item.id}><span className="service-number">0{i+1}</span><h3>{item.title}</h3><p className="service-lead">{item.lead}</p><ul>{item.list.map(x=><li key={x}>{x}</li>)}</ul><p className="service-foot">{item.foot}</p><a href={planFirst?`${pagePath("installation",lang)}?${servicePlanQuery(readServicePlan({service:item.id}))}#service-planner-heading`:`${pagePath("quote",lang)}?service=${item.id}&source=${encodeURIComponent(pagePath(sourceKey,lang))}`} className="text-link" aria-label={`${planFirst?(fr?"Planifier cette option":"Plan this option"):(fr?"Discuter de cette option":"Discuss this option")}: ${item.title}`}>{planFirst?(fr?"PLANIFIER CETTE OPTION":"PLAN THIS OPTION"):(fr?"DISCUTER DE CETTE OPTION":"DISCUSS THIS OPTION")}</a></article>)}</div><p className="section-note">{fr?"Les services d’assemblage et d’installation dépendent de votre emplacement, du produit et de la disponibilité des partenaires.":"Assembly and installation services depend on your location, the product, and confirmed partner availability."}</p></>;
 }
 
 export function FAQ({items,lang}:{items:{q:string;a:string}[];lang:Lang}) {return <section className="faq-section container"><div className="section-intro"><p className="eyebrow">{lang==="fr"?"DES RÉPONSES UTILES":"A LITTLE MORE CLARITY"}</p><h2>{lang==="fr"?"Vos questions, simplement.":"Good questions. Clear answers."}</h2></div><div className="faq-list">{items.map((item,i)=><details key={item.q}><summary><span>{item.q}</span><span className="faq-indicator" aria-hidden="true"/></summary><p>{item.a}</p></details>)}</div></section>;}

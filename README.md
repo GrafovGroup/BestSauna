@@ -22,6 +22,7 @@ The default site origin is the private review destination. Search indexing remai
 
 - **Application:** Vinext with React and Next-compatible routes, compiled for a Cloudflare Worker with static assets.
 - **Content:** one bilingual page and route map in `content/site.ts`; customer-facing pages under `app/[lang]/`.
+- **Service planning:** bilingual delivery/installation planner creates a requested-work brief; see [Service planner](docs/SERVICE_PLANNER.md).
 - **Quotations:** same-origin `POST /api/quotes`, with server validation and D1 storage.
 - **Database:** Drizzle schema in `db/schema.ts`; versioned SQL migrations in `drizzle/`.
 - **Hosting:** Sites tooling manages the review/deployment lifecycle and declared Cloudflare bindings.
@@ -147,6 +148,7 @@ Read enquiries and notification outcomes through the site's **authenticated Site
 | Bilingual copy, equivalent routes and related links | `content/site.ts` |
 | Page rendering, navigation and forms | `app/` and the relevant components |
 | Product records and publication checks | `content/products.ts`, `lib/product-catalogue.ts` and [Catalogue authoring](docs/PRODUCT_CATALOGUE.md) |
+| Delivery/installation scope planner | `components/service-planner.tsx`, `lib/service-planner.ts` and [Planner behaviour](docs/SERVICE_PLANNER.md) |
 | Model comparison and shortlist handoff | `components/model-comparison.tsx` and `lib/model-comparison.ts` |
 | Product cards, detail pages and quote handoff | `components/product-catalogue.tsx`, `lib/product-seo.ts` and the shared route/form components |
 | Guide summaries and section navigation | `content/guide-summaries.ts` and `components/guide-article.tsx` |

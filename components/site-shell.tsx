@@ -1,3 +1,4 @@
+import { hasServicePlan, readServicePlan, servicePlanQuery, servicePlanQuoteQuery } from "@/lib/service-planner";
 import { modelComparisonQuoteQuery, modelSlots, pairedComparisonQuery, readModelSelection, readQuoteModels } from "@/lib/model-comparison";
 import { getPublishedProducts } from "@/lib/published-catalogue";
 import { pages, pagePath, type Lang } from "@/content/site";
@@ -11,18 +12,20 @@ function pairedPageLink(pageKey:string, lang:Lang, search:Record<string,string|s
   const other:Lang=lang==="fr"?"en":"fr";
   const catalogue=getPublishedProducts();
   const selected=readModelSelection(search,catalogue).products;
-  const pairedQuery=new URLSearchParams(pageKey==="compare"?pairedComparisonQuery(search,catalogue):undefined);
+  const pairedQuery=new URLSearchParams(pageKey==="compare"?pairedComparisonQuery(search,catalogue):pageKey==="installation"&&hasServicePlan(search)?servicePlanQuery(readServicePlan(search)):undefined);
   if(pageKey==="quote") {
     for(const key of ["interest","service","use","placement","heat"]){const value=search[key];if(typeof value==="string"&&/^[a-z-]{1,30}$/.test(value))pairedQuery.set(key,value);}
     const models=readQuoteModels(search,catalogue);const product=models.direct?models.products[0]:undefined;
     if(product){pairedQuery.set("product",product.id);pairedQuery.set("source",product.paths[other]);}
     else if(models.products.length){models.products.forEach((p,i)=>pairedQuery.set(modelSlots[i],p.id));pairedQuery.set("source",pagePath("compare",other));}
+    else if(hasServicePlan(search)){for(const [key,value] of new URLSearchParams(servicePlanQuoteQuery(readServicePlan(search),pagePath("installation",other))))pairedQuery.set(key,value);}
     else if(typeof search.source==="string"){const source=pages.find(p=>p.paths[lang]===search.source);if(source)pairedQuery.set("source",source.paths[other]);}
   }
-  return pagePath(pageKey,other)+(pairedQuery.size?`?${pairedQuery.toString()}`:"")+(pageKey==="compare"&&catalogue.length>=2&&selected.length?"#model-comparison-results":"");
+  return pagePath(pageKey,other)+(pairedQuery.size?`?${pairedQuery.toString()}`:"")+(pageKey==="compare"&&catalogue.length>=2&&selected.length?"#model-comparison-results":pageKey==="installation"&&hasServicePlan(search)?"#service-plan-results":"");
 }
 
 function pageQuoteLink(pageKey:string,lang:Lang,search:Record<string,string|string[]|undefined>) {
+  if(pageKey==="installation"&&hasServicePlan(search))return `${pagePath("quote",lang)}?${servicePlanQuoteQuery(readServicePlan(search),pagePath("installation",lang))}`;
   if(pageKey==="compare") {
     const products=readModelSelection(search,getPublishedProducts()).products;const state=readComparison(search);
     return `${pagePath("quote",lang)}?${products.length>=2?modelComparisonQuoteQuery(products,state,pagePath(pageKey,lang)):comparisonQuoteQuery(state,"unsure",pagePath(pageKey,lang))}`;

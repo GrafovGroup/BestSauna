@@ -5,10 +5,10 @@ import type { FormEvent } from "react";
 import type { Lang } from "@/content/site";
 import { clearQuoteDraft, QUOTE_DRAFT_TTL, readQuoteDraft, saveQuoteDraft, type QuoteAttempt, type QuoteFields } from "@/lib/quote-draft";
 
-type Props = { lang: Lang; initialProductId?: string; initialMessage?: string; selectionAdjusted?: boolean; initialInterest?: string; initialService?: string; initialUse?: string; initialPlacement?: string; initialHeat?: string; sourcePath: string; privacyPath: string };
+type Props = { lang: Lang; initialProductId?: string; initialMessage?: string; initialPlanContext?: string; selectionAdjusted?: boolean; initialInterest?: string; initialService?: string; initialUse?: string; initialPlacement?: string; initialHeat?: string; sourcePath: string; privacyPath: string };
 type Field = { key: string; title: string; options?: [string, string][]; required?: boolean; type?: string; autoComplete?: string; maxLength?: number; placeholder?: string; multiline?: boolean };
 
-export function QuoteForm({ lang, initialInterest = "", initialService = "", initialUse = "", initialPlacement = "", initialHeat = "", initialProductId = "", initialMessage = "", selectionAdjusted = false, sourcePath, privacyPath }: Props) {
+export function QuoteForm({ lang, initialInterest = "", initialService = "", initialUse = "", initialPlacement = "", initialHeat = "", initialProductId = "", initialMessage = "", initialPlanContext = "", selectionAdjusted = false, sourcePath, privacyPath }: Props) {
   const fr = lang === "fr";
   const label = (en: string, french: string) => fr ? french : en;
   const initialFields: QuoteFields = {
@@ -18,7 +18,7 @@ export function QuoteForm({ lang, initialInterest = "", initialService = "", ini
     interest: initialInterest, service: initialService, timeframe: "", contactMethod: "email",
     capacity: "", heat: initialHeat, budget: "", message: initialMessage, commercialDetails: "", website: "",
   };
-  const context = JSON.stringify([initialInterest, initialService, initialUse, initialPlacement, initialHeat, ...(initialProductId ? [initialProductId] : [])]);
+  const context = JSON.stringify([initialInterest, initialService, initialUse, initialPlacement, initialHeat, ...(initialProductId ? [initialProductId] : []), ...(initialPlanContext ? [initialPlanContext] : [])]);
   const [fields, setFields] = useState(initialFields);
   const [accepted, setAccepted] = useState(false);
   const [errors, setErrors] = useState<QuoteFields>({});

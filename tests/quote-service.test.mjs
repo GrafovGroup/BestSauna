@@ -7,6 +7,7 @@ import { handleQuoteRequest, MAX_QUOTE_BODY_BYTES, NOTIFICATION_TIMEOUT_MS } fro
 import { publishedProducts, productQuoteMessage } from "../lib/product-catalogue.ts";
 import { catalogueFixture } from "./fixtures/catalogue.mjs";
 import { modelQuoteMessage } from "../lib/model-comparison.ts";
+import { readServicePlan, servicePlanMessage } from "../lib/service-planner.ts";
 
 const ORIGIN = "https://bestsauna.ca";
 const SECRET = "test-only-rate-limit-secret-with-more-than-32-characters";
@@ -200,6 +201,20 @@ test("SQL-looking user text is stored as data and cleanup failures cannot undo c
 
 function notificationEnvironment(store) { return { ...environment(store), QUOTE_EMAIL_ENABLED: "true" }; }
 const acceptedByFormspree = () => new Response(JSON.stringify({ ok: true, next: '/thanks' }), { status: 200 });
+
+test("delivery-planning responsibilities are stored and included in one mocked notification", async t => {
+  const store = database(t);
+  const plan = readServicePlan({ service: "managed", use: "cottage", placement: "outdoor", access: "remote", preparation: "arranged", handling: "request", connections: "unsure" });
+  const message = servicePlanMessage(plan, "fr");
+  const data = payload({ message, sourcePath: "/fr/livraison-installation/", intendedUse: plan.use, placement: plan.placement, service: plan.service, heat: "unsure", interest: "unsure" });
+  const sent = [];
+  const transport = async (_url, init) => { sent.push(JSON.parse(init.body)); return acceptedByFormspree(); };
+  const response = await handleQuoteRequest(request(data), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(response.status, 201); assert.equal(store.count(), 1); assert.equal(sent.length, 1);
+  const saved = store.sqlite.prepare("SELECT message, source_path, service FROM quote_enquiries").get();
+  assert.equal(saved.message, message); assert.equal(saved.source_path, data.sourcePath); assert.equal(saved.service, "managed");
+  assert.ok(sent[0].message.includes(message));
+});
 
 test("model context is saved and included in the mocked notification without new database fields", async t => {
   const store = database(t);
