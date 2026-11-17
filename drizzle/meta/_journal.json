@@ -15,6 +15,13 @@
       "when": 1794867771977,
       "tag": "0001_rainy_black_tom",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794892952747,
+      "tag": "0002_sloppy_glorian",
+      "breakpoints": true
     }
   ]
 }

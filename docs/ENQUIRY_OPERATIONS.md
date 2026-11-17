@@ -8,7 +8,7 @@ Use “Your enquiry has been saved” / “Votre demande a été enregistrée”
 
 ## Configuration and database
 
-- Apply both generated Drizzle migrations before using this release. `0001_rainy_black_tom.sql` appends notification tracking columns; existing enquiries default to `not_requested` and are not backfilled or emailed. Tables remain `quote_enquiries` and `quote_rate_limits`.
+- Apply all three generated Drizzle migrations before using this release. `0001_rainy_black_tom.sql` appends notification tracking columns; existing enquiries default to `not_requested` and are not backfilled or emailed. `0002_sloppy_glorian.sql` adds private workflow and history tables; existing enquiries retain their original data and start at workflow revision 0.
 - Set `QUOTE_EMAIL_ENABLED=true` only after verifying the Formspree destination. Keep it unset/false in ordinary local development so tests do not send real notifications. The fixed endpoint cannot be replaced by form input.
 - Configure WHC private storage per `WHC_HOSTING.md` (or the review Worker `DB` binding) and a private `RATE_LIMIT_SECRET` of at least 32 characters. Keep the secret out of Git, client bundles and public environment files.
 - Use the same-origin endpoint with JSON. The browser supplies a UUID in `Idempotency-Key` and retains it while retrying the same submission. Generate a new key after a confirmed submission or an intentional edit after a conflict.
@@ -35,18 +35,46 @@ The honeypot rejects a filled `website` field. It never returns pretend success.
 
 ## Owner retrieval and intake responsibility
 
-Read public submissions through the authenticated WHC terminal and `/home/nvfglyl5/.bestsauna/quotes.sqlite`, restricted to authorized business operators. The same SQL works through the authenticated Sites database tools for historical review D1 records; those records were not transferred or deleted. Filter `quote_enquiries` by `status = 'new'` and sort by `created_at`. A suitable operational query is:
+Use the private command-line workflow through the authenticated WHC terminal. It reads `/home/nvfglyl5/.bestsauna/quotes.sqlite`; it has no public URL or separate admin login. Access is controlled by the hosting account and private filesystem permissions. Limit that account to authorized operators. An operator name in a note is self-reported attribution, not a verified individual identity.
 
-```sql
-SELECT reference, created_at, name, email, phone, location, intended_use,
-       interest, service, timeframe, contact_method, language, message,
-       commercial_details, source_path
-FROM quote_enquiries
-WHERE status = 'new'
-ORDER BY created_at ASC;
+```sh
+source /home/nvfglyl5/nodevenv/bestsauna-live/24/bin/activate
+cd /home/nvfglyl5/bestsauna-live
+export BESTSAUNA_CONFIG_FILE=/home/nvfglyl5/.bestsauna/runtime.env
+node whc/enquiries.mjs summary
+node whc/enquiries.mjs list --queue new
+node whc/enquiries.mjs list --queue due
+node whc/enquiries.mjs list --queue notifications
 ```
 
-Use the reference to locate the full record and record progress by updating `status` to `in_progress` or `closed`. Restrict database access and exported customer data. Do not publish query results, customer details or database exports in the repository.
+`summary` gives counts without customer information. Queues are `new`, `active` (not closed), `due` (open and follow-up time reached), `unassigned` (open with no assignee), `notifications` (pending/sending/failed/unknown, including closed enquiries), and `all`. Due items sort by earliest follow-up; other queues sort oldest first with a stable reference tie-breaker. Queue output omits customer names, location, contact details and messages. `--limit` accepts 1–100, default 20; pass the returned `nextOffset` as `--offset` for the next page. Counts are live snapshots, not monitoring alerts.
+
+Read an individual record with `node whc/enquiries.mjs show REFERENCE`, using its full saved `BS-…` reference. This displays customer contact/project details and the latest 50 history entries, newest first; `historyTotal` and `historyTruncated` disclose older entries. All entries remain in the private database. Protect terminal scrollback and exports as customer records. No idempotency keys, payload hashes, configuration secrets or raw IPs are included.
+
+### Assign, follow up and record progress
+
+Run `node whc/enquiries.mjs update REFERENCE`. At its prompt, paste one JSON object, press Return, then Ctrl-D. Input goes to the program, keeping note text out of shell command history. For scripted use, supply JSON on standard input from a protected source; never put customer notes in shell arguments, repository files or shared logs. Example values below are illustrative:
+
+```json
+{
+  "expectedRevision": 0,
+  "operator": "Your name",
+  "status": "in_progress",
+  "assignedTo": "Responsible operator",
+  "followUpAt": "2026-11-20T15:00:00Z",
+  "note": "Requested site measurements. Freight and installation scope still need confirmation."
+}
+```
+
+Use the current `revision` from `show` or `list` as `expectedRevision`. Supply your operator name (1–80 characters). Optional fields are `status` (`new`, `in_progress`, `closed`), `assignedTo` (up to 80 characters; empty to unassign), `followUpAt` (valid UTC date-time ending in `Z`, or `null` to clear), and `note` (up to 2,000 characters). Convert local times to UTC explicitly; the command does not assume Toronto time. Each input is limited to 8 KiB. At least one actual change or nonempty note is required.
+
+Closing clears the follow-up date and records that change; reopen before scheduling further work. Note-only updates are allowed, including on closed records. The original customer brief, contact details, consent and notification state cannot be edited through this tool. It does not send messages, retry notifications, create orders, confirm warranties or schedule reminders.
+
+Every update writes the status, workflow and history together in one transaction. The history records operator, time, revision, before/after values and note. If another operator saved first, the command exits 2 with `revision_conflict`; read again, review the change and deliberately retry with the new revision. Do not blindly increment it. After an interrupted or uncertain command, read the record before retrying. Reusing a committed revision cannot create a second note. Other errors exit 1; successful operations exit 0. CLI errors hide underlying database/configuration traces.
+
+Read commands open SQLite read-only and neither create a database nor apply migrations. Deployment initializes migrations through the existing application. The history is an operational record, not a tamper-proof audit: an authorized database administrator can change it. Use this workflow for status changes rather than manual SQL so history and revision checks remain reliable.
+
+Historical private-review D1 records were not transferred or deleted. This WHC command does not access them; use authenticated Sites database tools when needed. Do not publish query results, customer details or database exports in the repository.
 
 **Before public launch, assign an operator to monitor intake and establish the review schedule.** Keep the database as a fallback if email is filtered, the quota is exhausted or Formspree is unavailable. The dated validation record distinguishes provider acceptance from independently confirmed inbox delivery.
 
@@ -54,7 +82,9 @@ Use the reference to locate the full record and record progress by updating `sta
 
 Records include supplied contact/project information, language/source path, submission time, idempotency data and the accepted privacy-notice version. `privacyAccepted` confirms the form's displayed enquiry/privacy notice; it is not marketing consent. The application does not write submission bodies, email addresses, raw IPs or provider traces to its logs. Hosting-platform logging is governed separately by the actual platform configuration.
 
-The implementation does not promise Canadian-only data residency or automatic enquiry deletion. The owner must adopt a retention period and access/deletion procedure, ensure the published privacy notice describes the actual processors and handling, and implement any required scheduled deletion before promising one. Contact and project details, source path, reference and privacy version are also sent to Formspree. The notification contains no idempotency key, payload hash or raw IP. Formspree stores submissions in its archive and the email provider processes notifications. The form stores version `2026-11-16.4`; update that version when the substantive notice changes. Coordinate customer-record deletion with applicable business requirements and backup/platform behaviour.
+Private workflow records add assignee, follow-up date, revision and operator history/notes. Keep notes factual, relevant and free of payment credentials or unnecessary sensitive information. They stay in the private database and are excluded from Formspree payloads and public quote responses. When an authorized retention/deletion process deletes the parent enquiry with foreign keys enabled, its workflow/history rows cascade with it. This command intentionally provides no deletion action; adopt an appropriate business process covering the database, backups, Formspree and mailbox copies.
+
+The implementation does not promise Canadian-only data residency or automatic enquiry deletion. The owner must adopt a retention period and access/deletion procedure, ensure the published privacy notice describes the actual processors and handling, and implement any required scheduled deletion before promising one. Contact and project details, source path, reference and privacy version are also sent to Formspree. The notification contains no idempotency key, payload hash or raw IP. Formspree stores submissions in its archive and the email provider processes notifications. The form stores version `2026-11-17.1`; update that version when the substantive notice changes. Coordinate customer-record deletion with applicable business requirements and backup/platform behaviour.
 
 ## Failure handling
 

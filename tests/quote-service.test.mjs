@@ -274,7 +274,7 @@ test("Formspree receives one committed, readable quotation with reply-to and ref
   assert.match(outgoing.message, /Supply, delivery & assembly/);
   assert.match(outgoing.message, /Hôtel — quatre utilisateurs/);
   assert.match(outgoing.message, /Reply preference: Phone/);
-  assert.match(outgoing.message, /Privacy notice acknowledged: 2026-11-16.4/);
+  assert.match(outgoing.message, /Privacy notice acknowledged: 2026-11-17.1/);
   assert.doesNotMatch(calls[0].init.body, /192\.0\.2\.10|payload_hash|idempotency_key|rate_limit/);
   const saved = store.sqlite.prepare('SELECT notification_status, notification_accepted_at, notification_error FROM quote_enquiries').get();
   assert.equal(saved.notification_status, 'accepted');

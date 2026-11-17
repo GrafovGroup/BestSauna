@@ -31,7 +31,7 @@ Request-local context reaches the Next route without accepting visitor-selected 
 
 The existing quote validation, five-per-hour HMAC rate limiter, idempotency, reference creation and once-only Formspree notification claim are shared with the Worker build. Local migration tests send no emails. D1 records from the private review remain there; this deployment does not delete or transfer historical customer data.
 
-The published privacy notice names WHC on the Node build and Cloudflare on the review Worker. Notice version `2026-11-16.4` accompanies new enquiries. Notifications continue to use the verified Formspree destination `info@bestsauna.ca` when enabled.
+The published privacy notice names WHC on the Node build and Cloudflare on the review Worker. Notice version `2026-11-17.1` accompanies new enquiries. Notifications continue to use the verified Formspree destination `info@bestsauna.ca` when enabled.
 
 ## Launch sequence and rollback
 
@@ -42,6 +42,8 @@ The published privacy notice names WHC on the Node build and Cloudflare on the r
 5. Verify ownership in Google Search Console and Bing Webmaster Tools and submit the public sitemap. A successful submission is not proof of indexing.
 
 Keep the prior application release and a consistent SQLite backup before later migrations. To roll back code, switch the BestSauna app to the previous compatible release and restart it; retain the private database. Restore DNS from the saved zone only if necessary and preserve all mail records. Database migrations should be additive; do not downgrade a database or delete enquiries as part of a code rollback.
+
+Migration `0002_sloppy_glorian.sql` adds only private enquiry workflow/history tables. Previous code can continue reading/writing quote intake with those tables present. The current runtime applies it transactionally with the other checked migrations. Back up the existing SQLite database consistently before deployment; never copy only the main file while WAL writes may be pending. The operator CLI ships in `whc/` and requires the existing private config; see `ENQUIRY_OPERATIONS.md`. It never initializes or migrates a database itself.
 
 ## References
 

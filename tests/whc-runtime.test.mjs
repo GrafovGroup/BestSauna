@@ -35,7 +35,7 @@ test("WHC storage survives restart and applies migrations once", async t => {
   assert.equal(retry.status, 200);
   assert.deepEqual(await retry.json(), saved);
   assert.equal((await DB.prepare("SELECT count(*) AS count FROM quote_enquiries").first()).count, 1);
-  assert.equal((await DB.prepare("SELECT count(*) AS count FROM bestsauna_migrations").first()).count, 2);
+  assert.equal((await DB.prepare("SELECT count(*) AS count FROM bestsauna_migrations").first()).count, 3);
 });
 
 test("WHC refuses changed historical migrations without damaging saved data", async t => {

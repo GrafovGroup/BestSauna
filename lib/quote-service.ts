@@ -2,7 +2,7 @@ import { normalizeCommercialBrief } from "./commercial-brief.ts";
 /** Private quotation intake. Database acceptance and notification acceptance are separate. */
 export const MAX_QUOTE_BODY_BYTES = 16 * 1024;
 export const QUOTE_RATE_LIMIT = 5;
-export const PRIVACY_NOTICE_VERSION = "2026-11-16.4";
+export const PRIVACY_NOTICE_VERSION = "2026-11-17.1";
 export const FORMSPREE_ENDPOINT = "https://formspree.io/f/mljbjqwy";
 export const NOTIFICATION_TIMEOUT_MS = 8000;
 

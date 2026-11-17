@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 // Customer enquiries are private operational records, never public site content.
 export const quoteEnquiries = sqliteTable("quote_enquiries", {
@@ -39,3 +39,22 @@ export const quoteRateLimits = sqliteTable("quote_rate_limits", {
   count: integer("count").notNull(),
   expiresAt: integer("expires_at").notNull(),
 }, (table) => [index("quote_rate_limits_expires_at_idx").on(table.expiresAt)]);
+
+// Private operator records. These are never included in public API responses or notifications.
+export const enquiryWorkflow = sqliteTable("enquiry_workflow", {
+  enquiryId: text("enquiry_id").primaryKey().references(() => quoteEnquiries.id, { onDelete: "cascade" }),
+  assignedTo: text("assigned_to").notNull().default(""),
+  followUpAt: text("follow_up_at"),
+  updatedAt: text("updated_at").notNull(),
+  revision: integer("revision").notNull(),
+}, table => [index("enquiry_workflow_follow_up_idx").on(table.followUpAt)]);
+
+export const enquiryEvents = sqliteTable("enquiry_events", {
+  id: text("id").primaryKey(),
+  enquiryId: text("enquiry_id").notNull().references(() => quoteEnquiries.id, { onDelete: "cascade" }),
+  revision: integer("revision").notNull(),
+  recordedAt: text("recorded_at").notNull(),
+  operator: text("operator").notNull(),
+  changes: text("changes").notNull(),
+  note: text("note").notNull().default(""),
+}, table => [uniqueIndex("enquiry_events_revision_idx").on(table.enquiryId, table.revision)]);

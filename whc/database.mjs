@@ -1,5 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
-import { chmodSync, mkdirSync, readFileSync, readdirSync, realpathSync } from "node:fs";
+import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { isAbsolute, join, relative, resolve } from "node:path";
 
@@ -39,11 +39,10 @@ export function openQuoteDatabase(filename, migrationDirectory) {
   return { prepare, close: () => db.close() };
 }
 
-export function getQuoteDatabase() {
-  if (sharedDatabase) return sharedDatabase;
+export function privateQuoteDatabasePath({ initialize = false } = {}) {
   const dataDirectory = process.env.BESTSAUNA_DATA_DIR;
   if (!dataDirectory || !isAbsolute(dataDirectory)) throw new Error("Set an absolute private BESTSAUNA_DATA_DIR");
-  mkdirSync(dataDirectory, { recursive: true, mode: 0o700 });
+  if (initialize) mkdirSync(dataDirectory, { recursive: true, mode: 0o700 });
   const actual = realpathSync(dataDirectory);
   const appDirectory = realpathSync(process.cwd());
   const inside = (parent, child) => { const path = relative(parent, child); return path === "" || (!path.startsWith("..") && !isAbsolute(path)); };
@@ -52,8 +51,16 @@ export function getQuoteDatabase() {
       (process.env.BESTSAUNA_DOCUMENT_ROOT && inside(resolve(process.env.BESTSAUNA_DOCUMENT_ROOT), actual))) {
     throw new Error("Quote storage must be outside the web and application directories");
   }
-  chmodSync(actual, 0o700);
+  if (initialize) chmodSync(actual, 0o700);
   const filename = join(actual, "quotes.sqlite");
+  if (existsSync(filename) && lstatSync(filename).isSymbolicLink()) throw new Error("Quote storage must not be a symbolic link");
+  return filename;
+}
+
+export function getQuoteDatabase() {
+  if (sharedDatabase) return sharedDatabase;
+  const filename = privateQuoteDatabasePath({ initialize: true });
+  const appDirectory = realpathSync(process.cwd());
   sharedDatabase = openQuoteDatabase(filename, join(appDirectory, "drizzle"));
   chmodSync(filename, 0o600);
   return sharedDatabase;
