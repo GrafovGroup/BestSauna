@@ -18,7 +18,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | --- | --- |
 | Main English/French journeys | 20 paired pages, navigation, brand assets, category/service copy and quotation entry points implemented. |
 | Distinct page imagery | 37 distinct editorial image placements across 20 page topics, including separate navigation cards, bilingual descriptions and responsive WebP exports. English/French counterparts share artwork; different pages do not. |
-| Quotation intake | Validation, review-before-send, temporary drafts, WHC SQLite persistence (D1 on private review) and tracked Formspree notifications implemented. Inbox operations remain a launch dependency below. |
+| Quotation intake | Required project/contact details, optional detail disclosures, compact carried-plan summary, validation, review-before-send, temporary drafts, WHC SQLite persistence (D1 on private review) and tracked Formspree notifications implemented. Inbox operations remain a launch dependency below. |
 | Commercial qualification | Bilingual facility/stage choices and operating, equipment, procurement and project details integrated with validation, drafts, review, private storage and notifications. |
 | Enquiry handling | Private WHC queue, assignment, follow-up and status/note workflow with atomic history and revision conflict checks implemented. An owner-appointed operator and monitoring schedule are still required. |
 | Conversion measurement | First-party aggregate quote stages, validation failures and server-confirmed saves, with entry-page/language/viewport breakdowns and private reporting. Counts are events, not unique visitors or exact conversion rates. See `MEASUREMENT.md`. |
@@ -28,9 +28,9 @@ Verify the actual deployed version and access controls. Private access and searc
 | Delivery and installation planner | Bilingual service selection, access/readiness checklist, responsibility summary and quote handoff implemented. Requested work and service availability remain subject to the written quotation. |
 | Coverage foundation | Bilingual province/territory and access planner, contextual quote handoff and evidence-gated local service records implemented. Geography alone makes no availability claim. See `COVERAGE.md`. |
 | Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |
-| Public launch | Completed on WHC at https://bestsauna.ca on 2026-11-16 (Toronto). HTTPS, 40 routes, 74 images and quote persistence verified. Google sitemap success: 40 discovered pages. Bing submission accepted and processing. |
+| Public launch | Completed on WHC at https://bestsauna.ca on 2026-11-16 (Toronto). HTTPS, 40 routes, 74 images and quote persistence verified. Both engines discovered 40 current sitemap URLs. Refreshed 2026-11-17: Google Success; Bing accepted and Processing. |
 
-The owner selected and authorized migration onto existing WHC hosting. Release `959a7fb472a690920589a45b37c6fd71812ce5b0` is public; the Sites review copy remains private. Only the web A record changed, plus Google/Bing ownership records. Existing mail and nameserver records were preserved. See `WHC_HOSTING.md` and the dated `VALIDATION.md` record.
+The owner selected and authorized migration onto existing WHC hosting. Release `89310342045e11d2bb981ce626c3c9d84be61295` is public; the Sites review copy remains private. Only the web A record changed, plus Google/Bing ownership records. Existing mail and nameserver records were preserved. See `WHC_HOSTING.md` and the dated `VALIDATION.md` record.
 
 ## Owner/provider inputs still required
 
@@ -46,7 +46,7 @@ The owner selected and authorized migration onto existing WHC hosting. Release `
 | Seller and quotation terms | Confirm the legal seller, customer-facing company details, payment/change/cancellation terms, delivery boundaries, warranty allocation and other terms needed for actual orders. Grafov Group Inc. is intended, not verified here against legal records. |
 | Privacy and retention | Adopt a retention period and access/deletion procedure. Match the privacy notice to actual processors, storage and notifications. Implement deletion before promising automatic retention limits; do not claim Canadian-only data residency. |
 | Public access and domain | Completed for the requested WHC launch. Sites remains private. Public HTTPS and canonical redirects were verified. |
-| Production indexing | Enabled and submitted. Google reports sitemap Success with 40 discovered pages; Bing is Processing. Actual indexing is not guaranteed by submission. |
+| Production indexing | Enabled and submitted. Both engines reported Success with 40 current sitemap URLs before refresh. Following the accepted 2026-11-17 refresh, Google retains Success and Bing is Processing. Discovery and submission do not establish indexing. |
 
 Category and planning pages can remain useful without a published product catalogue. Do not fill missing supplier data with invented models, prices, stock or approvals. Do not publish unresolved internal launch notes as customer-facing badges.
 
