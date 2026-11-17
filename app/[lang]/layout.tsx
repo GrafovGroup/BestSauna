@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "../globals.css";
+import { MeasurementEntry } from "@/components/measurement-entry";
+import { runtimeEnvironment } from "@/lib/runtime-environment";
 
 export const metadata: Metadata = {
   applicationName: "BestSauna.ca",
@@ -12,5 +14,5 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children, params }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {
   const { lang } = await params;
-  return <html lang={lang === "fr" ? "fr-CA" : "en-CA"}><body>{children}</body></html>;
+  return <html lang={lang === "fr" ? "fr-CA" : "en-CA"} data-measurement={runtimeEnvironment().MEASUREMENT_ENABLED === "true" ? "on" : "off"}><body><MeasurementEntry />{children}</body></html>;
 }

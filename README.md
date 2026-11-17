@@ -27,6 +27,7 @@ The default site origin remains the private review destination for safe developm
 - **Service planning:** bilingual delivery/installation planner creates a requested-work brief; see [Service planner](docs/SERVICE_PLANNER.md).
 - **Quotations:** same-origin `POST /api/quotes`, with server validation and private SQLite storage on WHC; the review Worker uses D1.
 - **Enquiry operations:** private WHC commands for intake queues, assignees, follow-up dates, status and recorded notes, with revision checks. See [operator instructions](docs/ENQUIRY_OPERATIONS.md). No public administration or customer lookup endpoint is exposed.
+- **Measurement:** optional first-party aggregate quote funnel counts by entry page, language and viewport category, with private reporting. See [measurement definitions and instructions](docs/MEASUREMENT.md).
 - **Database:** Drizzle schema in `db/schema.ts`; versioned SQL migrations in `drizzle/`.
 - **Hosting:** WHC cPanel hosts the public Node application. Sites tooling retains the private review deployment and Cloudflare bindings.
 

@@ -10,7 +10,7 @@ export function GuideArticle({ page, lang, quoteUrl }: { page: SitePage; lang: L
     <aside className="guide-sidebar">
       <nav className="guide-toc-desktop" aria-label={fr ? "Dans ce guide" : "In this guide"}><p className="eyebrow">{fr ? "DANS CE GUIDE" : "IN THIS GUIDE"}</p>{contents}</nav>
       <details className="guide-toc-mobile"><summary>{fr ? "DANS CE GUIDE" : "IN THIS GUIDE"}<span aria-hidden="true">+</span></summary><nav aria-label={fr ? "Dans ce guide" : "In this guide"}>{contents}</nav></details>
-      <a className="text-link guide-sidebar-quote" href={quoteUrl}>{fr ? "PARLONS DE VOTRE PROJET" : "DISCUSS YOUR PROJECT"}</a>
+      <a className="text-link guide-sidebar-quote" href={quoteUrl}>{fr ? "DEMANDER UNE SOUMISSION" : "REQUEST A QUOTE"}</a>
     </aside>
     <article className="guide-article" aria-labelledby="page-title">
       {summary && <section className="guide-answer" aria-labelledby="guide-answer-heading"><p className="eyebrow">{fr ? "L’ESSENTIEL" : "AT A GLANCE"}</p><h2 id="guide-answer-heading" tabIndex={-1}>{summary.question}</h2><p>{summary.answer}</p><ul>{summary.points.map(point => <li key={point}>{point}</li>)}</ul></section>}

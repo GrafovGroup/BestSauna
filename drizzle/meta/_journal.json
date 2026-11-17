@@ -22,6 +22,13 @@
       "when": 1794892952747,
       "tag": "0002_sloppy_glorian",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794894122185,
+      "tag": "0003_lean_joshua_kane",
+      "breakpoints": true
     }
   ]
 }

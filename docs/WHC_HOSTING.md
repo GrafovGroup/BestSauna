@@ -31,7 +31,9 @@ Request-local context reaches the Next route without accepting visitor-selected 
 
 The existing quote validation, five-per-hour HMAC rate limiter, idempotency, reference creation and once-only Formspree notification claim are shared with the Worker build. Local migration tests send no emails. D1 records from the private review remain there; this deployment does not delete or transfer historical customer data.
 
-The published privacy notice names WHC on the Node build and Cloudflare on the review Worker. Notice version `2026-11-17.1` accompanies new enquiries. Notifications continue to use the verified Formspree destination `info@bestsauna.ca` when enabled.
+The published privacy notice names WHC on the Node build and Cloudflare on the review Worker. Notice version `2026-11-17.2` accompanies new enquiries. Notifications continue to use the verified Formspree destination `info@bestsauna.ca` when enabled.
+
+`MEASUREMENT_ENABLED=true` enables the first-party quote funnel collector and private aggregate reporting. Leave it false/unset for ordinary development and private review. Migration `0003_lean_joshua_kane.sql` adds its tables and atomic deduplication/count trigger. Existing enquiry data is unchanged; measurement failures never make a committed enquiry fail. Definitions, retention and report commands are in `MEASUREMENT.md`.
 
 ## Launch sequence and rollback
 

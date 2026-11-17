@@ -27,7 +27,7 @@ export function SiteNav({ lang, home, quote, counterpart, nav, saunaLinks }: { l
           <div className={`dropdown-links ${saunasOpen ? "is-open" : ""}`} id="sauna-navigation">{saunaLinks.map(item => <a href={item.href} key={item.href}>{item.label}</a>)}</div>
         </div>
         {nav.map(item => <a className="nav-label" href={item.href} key={item.href}>{item.label}</a>)}
-        <a href={quote} className="button button-small nav-quote">{fr ? "UNE SOUMISSION" : "REQUEST A QUOTE"}</a>
+        <a href={quote} className="button button-small nav-quote">{fr ? "DEMANDER UNE SOUMISSION" : "REQUEST A QUOTE"}</a>
       </nav>
       <button ref={menuButton} className="mobile-menu-toggle" aria-controls="primary-navigation" aria-expanded={open} aria-label={open ? (fr ? "Fermer le menu" : "Close menu") : (fr ? "Ouvrir le menu" : "Open menu")} onClick={() => setOpen(!open)}><span /><span /><span /></button>
     </div>

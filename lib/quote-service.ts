@@ -1,8 +1,9 @@
 import { normalizeCommercialBrief } from "./commercial-brief.ts";
+import { cleanupMeasurement, measurementOptOut, normalizeMeasurementContext, recordMeasurement } from "./measurement-service.ts";
 /** Private quotation intake. Database acceptance and notification acceptance are separate. */
 export const MAX_QUOTE_BODY_BYTES = 16 * 1024;
 export const QUOTE_RATE_LIMIT = 5;
-export const PRIVACY_NOTICE_VERSION = "2026-11-17.1";
+export const PRIVACY_NOTICE_VERSION = "2026-11-17.2";
 export const FORMSPREE_ENDPOINT = "https://formspree.io/f/mljbjqwy";
 export const NOTIFICATION_TIMEOUT_MS = 8000;
 
@@ -29,6 +30,7 @@ export interface QuoteEnvironment {
   DB?: QuoteDatabase;
   RATE_LIMIT_SECRET?: string;
   QUOTE_EMAIL_ENABLED?: string;
+  MEASUREMENT_ENABLED?: string;
   /** Node HTTP socket context; null deliberately disables header fallbacks. */
   CLIENT_IP?: string | null;
   /** Public origin when a Node reverse proxy reconstructs an internal URL. */
@@ -333,6 +335,16 @@ export async function handleQuoteRequest(request: Request, environment: QuoteEnv
       const competing = await DB.prepare("SELECT reference, payload_hash FROM quote_enquiries WHERE idempotency_key = ?").bind(idempotencyKey).first<SavedKey>();
       return competing ? savedResponse(DB, competing, payloadHash, 200, now, transport, environment.QUOTE_EMAIL_ENABLED === "true", sourceOrigin) : error("unavailable", 503);
     }
+
+    // Count only a newly committed enquiry, never browser-claimed success or an idempotent retry.
+    // Measurement failure must not fail an otherwise valid enquiry or change notification delivery.
+    try {
+      const context = normalizeMeasurementContext((parsed.value as Record<string, unknown>).measurement);
+      if (environment.MEASUREMENT_ENABLED === "true" && context && !measurementOptOut(request)) {
+        await recordMeasurement(DB, { ...context, language: data.language }, "quote_saved", "", crypto.randomUUID(), timestamp);
+        await cleanupMeasurement(DB, timestamp);
+      }
+    } catch { /* Aggregate collection is best-effort, not an intake dependency. */ }
 
     // Best-effort expiry cleanup must never change a committed enquiry into a failed submission.
     try { await DB.prepare("DELETE FROM quote_rate_limits WHERE expires_at <= ?").bind(Math.floor(timestamp / 1000)).run(); } catch { /* Next accepted submission retries cleanup. */ }

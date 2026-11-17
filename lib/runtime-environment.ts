@@ -10,6 +10,7 @@ export function quoteEnvironment(): QuoteEnvironment {
     DB: getQuoteDatabase(),
     RATE_LIMIT_SECRET: process.env.RATE_LIMIT_SECRET,
     QUOTE_EMAIL_ENABLED: process.env.QUOTE_EMAIL_ENABLED,
+    MEASUREMENT_ENABLED: process.env.MEASUREMENT_ENABLED,
     // Only the HTTP server supplies this context. Client-supplied forwarding
     // headers cannot select a different rate-limit bucket on WHC.
     CLIENT_IP: currentClientAddress(),

@@ -38,7 +38,7 @@ const hasCode = code => error => error.code === code;
 
 test("additive workflow migration preserves an existing enquiry and starts at revision zero", async t => {
   const directory = folder(t), old = join(directory, "old-migrations"), file = join(directory, "quotes.sqlite");
-  cpSync(migrations, old, { recursive: true, filter: path => !path.endsWith("0002_sloppy_glorian.sql") });
+  cpSync(migrations, old, { recursive: true, filter: path => !/\/000[23]_[^/]+\.sql$/.test(path) });
   let DB = openQuoteDatabase(file, old);
   const response = await handleQuoteRequest(request(), { DB, RATE_LIMIT_SECRET: secret, CLIENT_IP: "192.0.2.1" });
   const ref = (await response.json()).reference;

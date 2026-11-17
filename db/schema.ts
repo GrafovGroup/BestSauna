@@ -58,3 +58,17 @@ export const enquiryEvents = sqliteTable("enquiry_events", {
   changes: text("changes").notNull(),
   note: text("note").notNull().default(""),
 }, table => [uniqueIndex("enquiry_events_revision_idx").on(table.enquiryId, table.revision)]);
+
+// Aggregate first-party funnel counts. No customer identifiers, form values or URLs with queries.
+export const measurementDaily = sqliteTable("measurement_daily", {
+  day: text("day").notNull(), event: text("event").notNull(), entryPath: text("entry_path").notNull(),
+  language: text("language").notNull(), device: text("device").notNull(), detail: text("detail").notNull(),
+  count: integer("count").notNull().default(0),
+}, table => [uniqueIndex("measurement_daily_dimensions_idx").on(table.day, table.event, table.entryPath, table.language, table.device, table.detail)]);
+
+// Short-lived deduplication receipts use hashes of random event IDs, never enquiry/visitor IDs.
+export const measurementReceipts = sqliteTable("measurement_receipts", {
+  token: text("token").primaryKey(), day: text("day").notNull(), event: text("event").notNull(),
+  entryPath: text("entry_path").notNull(), language: text("language").notNull(), device: text("device").notNull(),
+  detail: text("detail").notNull(), expiresAt: integer("expires_at").notNull(),
+}, table => [index("measurement_receipts_expires_idx").on(table.expiresAt)]);
