@@ -83,3 +83,25 @@ test("WHC validates Origin against its configured public URL behind the proxy", 
   const hostile = request(); hostile.headers.set("Origin", "https://other.example");
   assert.equal((await handleQuoteRequest(hostile, env)).status, 403);
 });
+
+test("LiteSpeed uses only its appended peer and spoofed prefixes cannot evade limits", async t => {
+  const DB = openQuoteDatabase(join(directory(t), "quotes.sqlite"), migrations); t.after(() => DB.close());
+  for (let index = 0; index < 6; index++) {
+    const incoming = { headers: { "x-forwarded-for": `198.51.100.${index}, 198.51.100.${index},192.0.2.9`, "x-real-ip": "198.51.100.200" }, socket: { remoteAddress: "127.0.0.1" } };
+    const address = clientAddressFromRequest(incoming, false, true);
+    assert.equal(address, "192.0.2.9");
+    const result = await handleQuoteRequest(request(), { DB, RATE_LIMIT_SECRET: secret, CLIENT_IP: address });
+    assert.equal(result.status, index < 5 ? 201 : 429);
+  }
+  const otherVisitor = clientAddressFromRequest({ headers: { "x-forwarded-for": "192.0.2.10" }, socket: { remoteAddress: "127.0.0.1" } }, false, true);
+  assert.equal((await handleQuoteRequest(request(), { DB, RATE_LIMIT_SECRET: secret, CLIENT_IP: otherVisitor })).status, 201);
+});
+
+test("LiteSpeed fails closed without a valid appended peer; direct Node ignores forwarding", () => {
+  for (const value of [undefined, "", "192.0.2.1,", "192.0.2.1, invalid", ["192.0.2.1"], "1.2.3.999"]) {
+    const incoming = { headers: { "x-forwarded-for": value }, socket: { remoteAddress: "127.0.0.1" } };
+    assert.equal(clientAddressFromRequest(incoming, false, true), null);
+    assert.equal(clientAddressFromRequest(incoming, false, false), "127.0.0.1");
+  }
+  assert.equal(clientAddressFromRequest({ headers: { "x-forwarded-for": "forged, 2001:DB8::1" }, socket: {} }, false, true), "2001:db8::1");
+});

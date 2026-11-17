@@ -4,6 +4,8 @@ Verified on 2026-11-16. This is a quotation-led review release, not a confirmati
 
 ## WHC migration verification — 2026-11-16 (Toronto)
 
+- Installed the isolated BestSauna application on WHC Node 24.22.3. Direct pre-DNS HTTP returned 200 and saved the internal notification-disabled quote `BS-20261117-6C22AAE77879`.
+- Host inspection found LiteSpeed's `LsNode` shim, which supplies a loopback socket rather than Passenger's protected header. A controlled forged-header probe showed LiteSpeed appending the actual connection peer to `X-Forwarded-For`. Updated the adapter to accept only that final entry inside `LsNode`; added rate-limit isolation and malformed-metadata tests. Temporary diagnostics are excluded from repository/release source and must be removed by the clean release before launch.
 - Added a Next.js/Passenger runtime alongside the existing Worker build, private SQLite storage using the actual D1 migrations, transaction/checksum migration tracking and request-local client identity.
 - `npm test`: 62 tests passed. New tests cover persistence after restart, applied-migration integrity, forged forwarding headers, concurrent request context and configured public-origin validation behind a reverse proxy.
 - Typecheck, content/catalogue checks and `npm run build:whc` passed. Robots and sitemap are explicitly dynamic so release environment settings apply at runtime.

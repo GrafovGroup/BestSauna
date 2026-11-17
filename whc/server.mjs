@@ -26,8 +26,8 @@ const server = createServer((request, response) => {
     }
     response.writeHead(421); response.end("Misdirected request"); return;
   }
-  // Only Passenger's unspoofable secure header (or a direct local socket) may
-  // identify the client. Ordinary forwarding headers are visitor-controlled.
+  // Use the runtime-specific trusted identity before removing proxy headers.
+  // LiteSpeed appends its peer; Passenger supplies a protected secure header.
   const address = clientAddressFromRequest(request);
   delete request.headers["cf-connecting-ip"];
   delete request.headers["x-forwarded-for"];

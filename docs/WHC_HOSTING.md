@@ -12,7 +12,9 @@ Use a dedicated application directory outside every public document root. The cP
 
 Node's SQLite adapter runs the same checked SQL migrations as D1, under a write transaction with a migration ledger and checksums. Records live outside the application and document roots. The data directory is mode 0700; the database and runtime configuration are mode 0600. WAL and a busy timeout support concurrent Passenger workers. Deploying a new application release must not overwrite the data directory.
 
-Passenger identifies clients using its protected `!~Passenger-Client-Address` header. Direct local tests use the socket address. Ordinary forwarded headers are ignored. Request-local context reaches the Next route without trusting visitor-supplied identity headers. Origin checks use the configured public origin, while the HTTP entry point rejects unexpected Host values and redirects the explicit www alias to the canonical host.
+WHC's current LiteSpeed runtime exposes the server-created `LsNode` global and hardcodes the Node socket address to loopback. In this runtime only, the adapter takes the final `X-Forwarded-For` entry, which LiteSpeed appends from its connection peer. Forged prefixes and `X-Real-IP` are ignored. A controlled request on WHC verified this append behaviour before launch. Missing or invalid peer metadata fails closed. Apache Passenger remains supported using its protected `!~Passenger-Client-Address` header; ordinary direct Node tests use the socket address and ignore forwarded headers. Revalidate this trust boundary if adding a CDN or changing host software.
+
+Request-local context reaches the Next route without accepting visitor-selected identity. Origin checks use the configured public origin, while the HTTP entry point rejects unexpected Host values and redirects the explicit www alias to the canonical host.
 
 The existing quote validation, five-per-hour HMAC rate limiter, idempotency, reference creation and once-only Formspree notification claim are shared with the Worker build. Local migration tests send no emails. D1 records from the private review remain there; this deployment does not delete or transfer historical customer data.
 
@@ -33,6 +35,7 @@ Keep the prior application release and a consistent SQLite backup before later m
 - [WHC server specifications](https://help.whc.ca/en/articles/627459-what-are-your-server-s-technical-specifications)
 - [cPanel Node.js applications](https://docs.cpanel.net/knowledge-base/web-services/how-to-install-a-node.js-application/)
 - [Passenger secure HTTP headers](https://www.phusionpassenger.com/docs/advanced_guides/in_depth/node/secure_http_headers.html)
+- [LiteSpeed forwarding implementation](https://github.com/litespeedtech/openlitespeed/blob/master/src/extensions/proxy/proxyconn.cpp)
 - [Next.js custom servers](https://nextjs.org/docs/app/guides/custom-server)
 
 Deployment and indexing outcomes belong in the dated validation record; this procedure alone does not establish a successful launch.

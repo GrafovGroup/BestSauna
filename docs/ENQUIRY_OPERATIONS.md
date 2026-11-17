@@ -46,7 +46,7 @@ Use the reference to locate the full record and record progress by updating `sta
 
 Records include supplied contact/project information, language/source path, submission time, idempotency data and the accepted privacy-notice version. `privacyAccepted` confirms the form's displayed enquiry/privacy notice; it is not marketing consent. The application does not write submission bodies, email addresses, raw IPs or provider traces to its logs. Hosting-platform logging is governed separately by the actual platform configuration.
 
-The implementation does not promise Canadian-only data residency or automatic enquiry deletion. The owner must adopt a retention period and access/deletion procedure, ensure the published privacy notice describes the actual processors and handling, and implement any required scheduled deletion before promising one. Contact and project details, source path, reference and privacy version are also sent to Formspree. The notification contains no idempotency key, payload hash or raw IP. Formspree stores submissions in its archive and the email provider processes notifications. The form stores version `2026-11-16.3`; update that version when the substantive notice changes. Coordinate customer-record deletion with applicable business requirements and backup/platform behaviour.
+The implementation does not promise Canadian-only data residency or automatic enquiry deletion. The owner must adopt a retention period and access/deletion procedure, ensure the published privacy notice describes the actual processors and handling, and implement any required scheduled deletion before promising one. Contact and project details, source path, reference and privacy version are also sent to Formspree. The notification contains no idempotency key, payload hash or raw IP. Formspree stores submissions in its archive and the email provider processes notifications. The form stores version `2026-11-16.4`; update that version when the substantive notice changes. Coordinate customer-record deletion with applicable business requirements and backup/platform behaviour.
 
 ## Failure handling
 
@@ -62,7 +62,7 @@ Run `node --experimental-strip-types --test tests/quote-service.test.mjs`. Tests
 
 ## Notification behaviour and recovery
 
-The React UI retains its existing validation, draft, review and error states. Its same-origin request reaches the Cloudflare Worker; a native server `fetch` implements Formspree’s JSON/AJAX protocol after database storage. Replacing this with a second client-side SDK submission would bypass the database claim and risk duplicate notifications. The payload uses Formspree’s `email` reply-to field and a fixed subject containing the saved reference.
+The React UI retains its existing validation, draft, review and error states. Its same-origin request reaches the WHC Node server (or the Cloudflare Worker on the private review copy); a native server `fetch` implements Formspree’s JSON/AJAX protocol after database storage. Replacing this with a second client-side SDK submission would bypass the database claim and risk duplicate notifications. The payload uses Formspree’s `email` reply-to field and a fixed subject containing the saved reference. WHC storage and proxy identity requirements are documented in `WHC_HOSTING.md`.
 
 The Worker atomically changes a new enquiry from `pending` to `sending` before its one outbound request. An eight-second deadline bounds that request. No detached promise is used. Status values:
 
