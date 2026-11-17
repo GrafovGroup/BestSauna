@@ -1,6 +1,6 @@
 # BestSauna content evidence and publication gates
 
-Internal implementation record. Updated 2026-11-16. This document is not customer-facing copy and is not evidence of a public commercial launch.
+Internal implementation record. Updated 2026-11-17. This document is not customer-facing copy and is not evidence of a public commercial launch.
 
 ## Evidence status
 
@@ -19,6 +19,7 @@ The working sources are the owner's instructions, the approved “Launch Sauna B
 | Operating company | Brief identifies intended operator Grafov Group Inc. | Confirm customer-facing seller identity and records before legal, order or checkout use; do not infer addresses or registration details. |
 | Supplier approvals | No approved agreement, dealer territory, supply allocation, written terms or fulfilment arrangement supplied. | Do not display supplier-partner or authorized-dealer claims. Public enquiry routes researched during planning are not approvals. |
 | Actual product catalogue | No approved model/configuration records, prices, stock, shipping dates, warranties or product photo rights supplied. The ten planning archetypes are sourcing briefs. | The source-managed foundation and publication gates are implemented; its real-model array is empty. Explain categories and accept project enquiries. Keep model listings unpublished until verified; Product/Offer markup remains gated. See `PRODUCT_CATALOGUE.md`. |
+| Geographic foundation | Government of Canada province/territory names and alpha codes reviewed 2026-11-17; all 13 are represented in `content/coverage.ts`. | Use as geographic enquiry choices only. Local service records are separate and evidence-gated; no verified boundaries have been supplied. See `COVERAGE.md`. |
 | Contractor coverage | No contracted crew map, capacity commitment, service boundary or completed installation evidence supplied. | Accept national project enquiries and confirm service availability individually. Do not claim nationwide installation, all-Ontario coverage, employees, local offices or completed work. |
 | Service packages | Three scope concepts are approved in the brief: supply/delivery, supply/delivery/assembly and managed installation project. | Explain scope differences and quotation-dependent inclusions. Do not imply universal turnkey service or electrically ready operation after assembly. |
 | Enquiry handling | Public WHC implementation stores requests in private SQLite and returns a saved reference; the private review copy retains D1. Controlled hosted persistence and idempotency were verified. | Structured commercial briefs use the same validated intake, storage and notification path. Follow `ENQUIRY_OPERATIONS.md`; database acceptance is not inbox delivery. |

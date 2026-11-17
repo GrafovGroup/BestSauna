@@ -24,6 +24,7 @@ Verify the actual deployed version and access controls. Private access and searc
 | Buying guides and search foundations | Bilingual summaries, section navigation, article/page/collection structured data, matching breadcrumbs and reciprocal language sitemap entries implemented. Indexing remains disabled for private review. |
 | Real product catalogue | Source-managed bilingual records, draft/published/archived checks, catalogue cards, detail pages, metadata and quote handoff implemented. No real records are published; supplier/model evidence below is still required. See `PRODUCT_CATALOGUE.md`. |
 | Delivery and installation planner | Bilingual service selection, access/readiness checklist, responsibility summary and quote handoff implemented. Requested work and service availability remain subject to the written quotation. |
+| Coverage foundation | Bilingual province/territory and access planner, contextual quote handoff and evidence-gated local service records implemented. Geography alone makes no availability claim. See `COVERAGE.md`. |
 | Location-specific service pages | Withheld until actual partner coverage supports useful location claims. |
 | Public launch | Completed on WHC at https://bestsauna.ca on 2026-11-16 (Toronto). HTTPS, 40 routes, 74 images and quote persistence verified. Google sitemap success: 40 discovered pages. Bing submission accepted and processing. |
 

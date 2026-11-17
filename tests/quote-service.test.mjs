@@ -8,6 +8,7 @@ import { publishedProducts, productQuoteMessage } from "../lib/product-catalogue
 import { catalogueFixture } from "./fixtures/catalogue.mjs";
 import { modelQuoteMessage } from "../lib/model-comparison.ts";
 import { readServicePlan, servicePlanMessage } from "../lib/service-planner.ts";
+import { coveragePlanMessage } from "../lib/coverage.ts";
 
 const ORIGIN = "https://bestsauna.ca";
 const SECRET = "test-only-rate-limit-secret-with-more-than-32-characters";
@@ -429,4 +430,23 @@ test('invalid commercial details fail before storage; hidden residential details
   const response = await submit(store, payload({ intendedUse: 'home', commercialBriefVersion: 1, commercialDetails: 'DO NOT SEND', commercialFacility: 'hotel', commercialHours: 'PRIVATE HIDDEN VALUE' }));
   assert.equal(response.status, 201);
   assert.equal(store.sqlite.prepare('SELECT commercial_details FROM quote_enquiries').get().commercial_details, '');
+});
+
+test('destination brief remains intact in saved intake and its single notification', async t => {
+  const store = database(t);
+  const message = coveragePlanMessage({ region: 'NU', service: 'supply', access: 'transfer' }, 'fr') + '\nLOCAL QA — receiving contact to confirm';
+  const data = payload({ interest: 'unsure', service: 'supply', message, sourcePath: '/fr/regions-desservies/' });
+  const key = crypto.randomUUID();
+  const calls = [];
+  const transport = async (_, init) => { calls.push(JSON.parse(init.body)); return acceptedByFormspree(); };
+  const response = await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal(response.status, 201);
+  const result = await response.json();
+  const saved = store.sqlite.prepare('SELECT message, source_path FROM quote_enquiries WHERE reference=?').get(result.reference);
+  assert.equal(saved.message, message);
+  assert.equal(saved.source_path, '/fr/regions-desservies/');
+  assert.ok(calls[0].message.includes(message));
+  const retry = await handleQuoteRequest(request(data, { key }), notificationEnvironment(store), () => NOW, transport);
+  assert.equal((await retry.json()).reference, result.reference);
+  assert.equal(calls.length, 1);
 });

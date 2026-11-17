@@ -6,18 +6,19 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "build:whc": "npm run catalogue:check && next build --webpack",
+    "build:whc": "npm run catalogue:check && npm run coverage:check && next build --webpack",
     "start:whc": "node app.cjs",
     "package:whc": "node scripts/package-whc.mjs",
     "install:ci": "node scripts/install-ci.mjs",
     "dev": "node scripts/run-framework.mjs dev",
-    "build": "npm run catalogue:check && node scripts/run-framework.mjs build",
+    "build": "npm run catalogue:check && npm run coverage:check && node scripts/run-framework.mjs build",
     "start": "node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to .wrangler/state --ip 127.0.0.1 --inspector-port 0",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "typecheck": "tsc --noEmit --pretty false",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
-    "verify": "npm run typecheck && npm test && node --experimental-strip-types scripts/verify-content.mjs && npm run catalogue:check",
+    "verify": "npm run typecheck && npm test && node --experimental-strip-types scripts/verify-content.mjs && npm run catalogue:check && npm run coverage:check",
+    "coverage:check": "node --experimental-strip-types scripts/check-coverage.mjs",
     "catalogue:check": "node --experimental-strip-types scripts/check-catalogue.mjs"
   },
   "dependencies": {
